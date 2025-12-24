@@ -189,7 +189,7 @@ export default function SmtpTesterPage() {
 
             <Button
               onClick={() => runTest(mailer)}
-              isLoading={testLoading === mailer}
+              loading={testLoading === mailer}
               className="w-full justify-center"
               variant={results[mailer]?.success ? 'success' : 'primary'}
               startIcon={<Send className="w-4 h-4" />}
