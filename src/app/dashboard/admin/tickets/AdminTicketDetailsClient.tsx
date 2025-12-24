@@ -150,7 +150,7 @@ export default function AdminTicketDetailsClient() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
          {/* Main Conversation Column */}
          <div className="lg:col-span-2 space-y-6">
-            <ComponentCard className="p-0 overflow-hidden border-none shadow-theme-xl">
+            <ComponentCard title="Discussion" className="p-0 overflow-hidden border-none shadow-theme-xl">
                 {/* Conversations Area */}
                 <div 
                    ref={scrollRef}
