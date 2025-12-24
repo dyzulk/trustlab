@@ -21,6 +21,12 @@ if (typeof window !== 'undefined') {
         wssPort: parseInt(process.env.NEXT_PUBLIC_REVERB_PORT ?? "443"),
         forceTLS: (process.env.NEXT_PUBLIC_REVERB_SCHEME ?? 'https') === 'https',
         enabledTransports: ['ws', 'wss'],
+        authEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/broadcasting/auth`,
+        auth: {
+            headers: {
+                Accept: 'application/json',
+            },
+        },
     });
 }
 
