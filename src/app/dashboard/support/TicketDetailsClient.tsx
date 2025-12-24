@@ -316,8 +316,8 @@ export default function TicketDetailsClient() {
          onConfirm={handleCloseTicket}
          title="Close Ticket"
          message="Are you sure you want to close this ticket? You won't be able to reply until it's reopened by an administrator."
-         confirmText="Yes, Close Ticket"
-         type="danger"
+         confirmLabel="Yes, Close Ticket"
+         variant="danger"
       />
     </div>
   );

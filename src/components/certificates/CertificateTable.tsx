@@ -156,8 +156,8 @@ export default function CertificateTable({
           <InputField
             placeholder="Search certificates..."
             value={searchTerm}
-            onChange={(val) => {
-              setSearchTerm(val);
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
             className="!py-2"

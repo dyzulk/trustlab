@@ -388,8 +388,8 @@ export default function AdminTicketDetailsClient() {
          onConfirm={handleCloseTicket}
          title="Lock This Ticket?"
          message="Closing this ticket will lock the conversation. The customer will no longer be able to send replies unless the status is manually changed back to Open."
-         confirmText="Lock Conversation"
-         type="danger"
+         confirmLabel="Lock Conversation"
+         variant="danger"
       />
     </div>
   );

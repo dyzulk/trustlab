@@ -87,7 +87,12 @@ const UserModal: React.FC<UserModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={user ? "Edit User" : "Add New User"} className="max-w-[500px]">
+    <Modal isOpen={isOpen} onClose={onClose} className="max-w-[500px]">
+      <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+        <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+          {user ? "Edit User" : "Add New User"}
+        </h3>
+      </div>
       <form onSubmit={handleSubmit} className="p-6 space-y-5">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">

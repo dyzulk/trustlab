@@ -58,7 +58,9 @@ export default function RootCaTable({
           <InputField
             placeholder="Search CA..."
             value={searchTerm}
-            onChange={(val) => setSearchTerm(val)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }}
             className="!py-2"
           />
         </div>
