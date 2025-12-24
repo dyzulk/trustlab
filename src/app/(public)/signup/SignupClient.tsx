@@ -184,7 +184,7 @@ export default function SignupClient() {
                                 className="mr-3 h-5 w-5 rounded-md border-gray-300 dark:border-gray-700 text-brand-500 focus:ring-brand-500" 
                             />
                             <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                                By creating an account means you agree to the <Link href="/terms" className="text-gray-800 dark:text-white/90 underline">Terms and Conditions</Link>, and our <Link href="/privacy" className="text-gray-800 dark:text-white underline">Privacy Policy</Link>
+                                By creating an account, you agree to our <Link href="/legal/view?slug=terms" className="underline hover:text-gray-700 dark:hover:text-gray-300">Terms</Link> and <Link href="/legal/view?slug=privacy" className="underline hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</Link>.
                             </p>
                          </div>
                     </div>

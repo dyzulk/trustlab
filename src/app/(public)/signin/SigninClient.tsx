@@ -155,7 +155,7 @@ export default function SigninClient() {
                     Don't have an account? <Link href="/signup" className="text-brand-500 hover:text-brand-600 dark:text-brand-400">Sign Up</Link>
                  </p>
                  <p className="mt-4 text-center text-xs text-gray-500 sm:text-start dark:text-gray-500">
-                    By signing in, you agree to our <Link href="/terms" className="underline hover:text-gray-700 dark:hover:text-gray-300">Terms</Link> and <Link href="/privacy" className="underline hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</Link>.
+                    By signing in, you agree to our <Link href="/legal/view?slug=terms" className="underline hover:text-gray-700 dark:hover:text-gray-300">Terms</Link> and <Link href="/legal/view?slug=privacy" className="underline hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</Link>.
                  </p>
             </div>
         </div>
