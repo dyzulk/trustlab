@@ -283,7 +283,7 @@ export default function InquiryClient() {
               <Button 
                 variant="primary" 
                 onClick={handleSendReply}
-                isLoading={isReplying}
+                loading={isReplying}
                 startIcon={<Send className="w-4 h-4" />}
               >
                 Send Reply
