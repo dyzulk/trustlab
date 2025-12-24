@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 import axios from "@/lib/axios";
+import Alert from "@/components/ui/alert/Alert";
 
 export default function ContactClient() {
-    const [status, setStatus] = useState<string | null>(null);
+    const [alertState, setAlertState] = useState<{
+        variant: "success" | "error";
+        title: string;
+        message: string;
+    } | null>(null);
     const [errors, setErrors] = useState<any>({});
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
@@ -23,11 +28,15 @@ export default function ContactClient() {
         e.preventDefault();
         setLoading(true);
         setErrors({});
-        setStatus(null);
+        setAlertState(null);
 
         try {
             await axios.post("/api/public/inquiries", formData);
-            setStatus("Your message has been sent successfully. We will get back to you soon!");
+            setAlertState({
+                variant: 'success',
+                title: 'Message Sent Successfully',
+                message: 'Your message has been received. We will get back to you soon!',
+            });
             setFormData({
                 name: "",
                 email: "",
@@ -39,7 +48,11 @@ export default function ContactClient() {
             if (error.response && error.response.status === 422) {
                 setErrors(error.response.data.errors);
             } else {
-                setStatus("Something went wrong. Please try again.");
+                setAlertState({
+                    variant: 'error',
+                    title: 'Submission Failed',
+                    message: 'Something went wrong. Please try again.',
+                });
             }
         } finally {
             setLoading(false);
@@ -58,19 +71,12 @@ export default function ContactClient() {
                     </p>
                 </div>
 
-                {status && (
-                    <div className={`rounded-2xl p-4 border shadow-sm ${status.includes("success") ? "bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800" : "bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800"}`}>
-                        <div className="flex items-center gap-3">
-                            {status.includes("success") && (
-                                <svg className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                                </svg>
-                            )}
-                            <p className={`text-sm font-bold ${status.includes("success") ? "text-green-800 dark:text-green-200" : "text-blue-800 dark:text-blue-200"}`}>
-                                {status}
-                            </p>
-                        </div>
-                    </div>
+                {alertState && (
+                    <Alert
+                        variant={alertState.variant}
+                        title={alertState.title}
+                        message={alertState.message}
+                    />
                 )}
 
                 <div className="bg-white px-8 py-10 shadow-2xl rounded-[2.5rem] dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 backdrop-blur-sm">
