@@ -7,6 +7,8 @@ import { ThemeProvider } from '@/context/ThemeContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { ToastContainer } from '@/components/ui/toast/Toast';
 
+export const runtime = 'edge';
+
 export const metadata: Metadata = {
   title: {
     template: '%s | TrustLab - PKI & Certificate Management',
