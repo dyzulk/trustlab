@@ -1,6 +1,6 @@
 {
   "name": "TrustLab by DyzulkDev",
-  "version": "2.2.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -22,14 +22,11 @@
     "next-themes": "^0.4.6",
     "pusher-js": "^8.4.0",
     "react": "^19.2.0",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.2.0",
     "react-dropzone": "^14.3.8",
     "react-easy-crop": "^5.5.6",
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
-    "swiper": "^11.2.10",
     "swr": "^2.3.8",
     "tailwind-merge": "^2.6.0"
   },
