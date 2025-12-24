@@ -231,7 +231,7 @@ export default function CertificateTable({
                   <TableCell className="px-5 py-4 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <Link
-                        href={`/dashboard/certificates/${cert.uuid}`}
+                        href={`/dashboard/certificates/view?uuid=${cert.uuid}`}
                         className="p-2 text-gray-500 hover:text-brand-500 transition-colors"
                         title="View Details"
                       >

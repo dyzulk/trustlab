@@ -41,7 +41,7 @@ export default function Footer() {
                     {legalPages.map((page) => (
                         <Link 
                             key={page.slug} 
-                            href={`/legal/${page.slug}`} 
+                            href={`/legal/view?slug=${page.slug}`}  
                             className="hover:text-brand-500 transition-colors"
                         >
                             {page.title}

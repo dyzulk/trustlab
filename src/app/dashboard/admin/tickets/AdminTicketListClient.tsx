@@ -135,7 +135,7 @@ export default function AdminTicketListClient() {
                     </td>
                     <td className="px-6 py-4 text-right">
                        <Link 
-                         href={`/dashboard/admin/tickets/${ticket.id}`}
+                         href={`/dashboard/admin/tickets/view?id=${ticket.id}`}
                          className="inline-flex items-center gap-1 text-xs font-bold text-brand-500 hover:text-brand-600 dark:text-brand-400 transition-colors uppercase tracking-widest"
                        >
                          Manage <ChevronRight size={14} />

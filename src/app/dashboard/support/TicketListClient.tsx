@@ -135,7 +135,7 @@ export default function TicketListClient() {
           filteredTickets.map((ticket: any) => (
             <Link
               key={ticket.id}
-              href={`/dashboard/support/${ticket.id}`}
+              href={`/dashboard/support/view?id=${ticket.id}`}
               className="block group"
             >
               <ComponentCard className="transition-all hover:border-brand-500 border-transparent border-2">

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import axios from "@/lib/axios";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
@@ -10,7 +10,8 @@ import CertificateDetails from "@/components/certificates/CertificateDetails";
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function CertificateDetailsClient() {
-  const { uuid } = useParams();
+  const searchParams = useSearchParams();
+  const uuid = searchParams.get('uuid');
   const { data, error, isLoading } = useSWR(`/api/certificates/${uuid}`, fetcher);
 
   if (isLoading) {

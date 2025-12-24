@@ -3,7 +3,7 @@
 import React from "react";
 import useSWR from "swr";
 import axios from "@/lib/axios";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, Mail, Calendar, Shield, User, MapPin, Phone } from "lucide-react";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ComponentCard from "@/components/common/ComponentCard";
@@ -14,7 +14,8 @@ import Link from "next/link";
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function UserProfileClient() {
-  const { id } = useParams();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const router = useRouter();
   const { data: user, error, isLoading } = useSWR(id ? `/api/admin/users/${id}` : null, fetcher);
 

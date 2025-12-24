@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 import axios from "@/lib/axios";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Send, ArrowLeft, Clock, CheckCircle, AlertCircle, User, MessageSquare, XCircle, Mail, Paperclip, FileText, X } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,7 +29,8 @@ const priorityColors: any = {
 };
 
 export default function AdminTicketDetailsClient() {
-  const { id } = useParams();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const { addToast } = useToast();
   const { user } = useAuth();
   const router = useRouter();
@@ -356,11 +357,11 @@ export default function AdminTicketDetailsClient() {
                      {ticket.user ? (
                          <>
                              <Link 
-                                href={`/dashboard/users/${ticket.user.id}`}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 dark:bg-white/5 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300"
-                             >
-                                <User size={14} /> Profile
-                             </Link>
+                               href={`/dashboard/users/view?id=${ticket.user.id}`}
+                               className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 dark:bg-white/5 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300"
+                            >
+                               <User size={14} /> Profile
+                            </Link>
                              <a 
                                 href={`mailto:${ticket.user.email}`}
                                 className="flex-1 flex items-center justify-center gap-2 py-3 bg-gray-50 dark:bg-white/5 text-xs font-black uppercase tracking-widest rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-all border border-gray-100 dark:border-gray-800 text-gray-700 dark:text-gray-300"

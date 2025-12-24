@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 import axios from "@/lib/axios";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Send, ArrowLeft, Clock, CheckCircle, AlertCircle, User, MessageSquare, XCircle, Paperclip, FileText, X } from "lucide-react";
 import { useToast } from "@/context/ToastContext";
 import { useAuth } from "@/hooks/useAuth";
@@ -23,7 +23,8 @@ const statusColors: any = {
 };
 
 export default function TicketDetailsClient() {
-  const { id } = useParams();
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
   const { addToast } = useToast();
   const { user } = useAuth();
   const router = useRouter();

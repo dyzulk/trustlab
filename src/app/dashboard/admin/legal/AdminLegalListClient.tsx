@@ -106,7 +106,7 @@ export default function AdminLegalListClient() {
                       <td className="px-6 py-4 text-right">
                          <div className="flex items-center justify-end gap-2">
                             <Link 
-                               href={`/legal/${page.slug}`} 
+                               href={`/legal/view?slug=${page.slug}`} 
                                target="_blank"
                                className="p-1.5 text-gray-400 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-lg transition-colors"
                                title="View Public Page"
@@ -114,7 +114,7 @@ export default function AdminLegalListClient() {
                                <FileText size={16} />
                             </Link>
                             <Link 
-                               href={`/dashboard/admin/legal/${page.id}`}
+                               href={`/dashboard/admin/legal/view?id=${page.id}`}
                                className="p-1.5 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                                title="Edit Page"
                             >

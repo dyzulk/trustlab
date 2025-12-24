@@ -1,56 +1,59 @@
-import React from 'react';
-import { notFound } from 'next/navigation';
+"use client";
+
+import React, { useEffect, useState, Suspense } from 'react';
+import { notFound, useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-export const dynamic = 'force-dynamic';
+function LegalPageContent() {
+  const searchParams = useSearchParams();
+  const slug = searchParams.get('slug');
+  const [page, setPage] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-interface LegalPageProps {
-  params: {
-    slug: string;
-  };
-}
-
-// Helper to separate data fetching
-async function getLegalPage(slug: string) {
-  try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    console.log(`[LegalPage] Fetching: ${apiUrl}/api/public/legal-pages/${slug}`);
-    
-    const res = await fetch(`${apiUrl}/api/public/legal-pages/${slug}`, {
-      cache: 'no-store',
-      headers: {
-        'Accept': 'application/json',
-      }
-    });
-
-    if (!res.ok) {
-        console.error(`[LegalPage] Fetch failed: ${res.status} ${res.statusText}`);
-        if (res.status === 404) return null;
-        throw new Error(`Failed to fetch legal page: ${res.status}`);
+  useEffect(() => {
+    if (!slug) {
+        setLoading(false);
+        return;
     }
 
-    const json = await res.json();
-    return json.data;
-  } catch (error) {
-    console.error("[LegalPage] Error fetching page:", error);
-    return null;
-  }
-}
+    const fetchPage = async () => {
+        try {
+            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+            const res = await fetch(`${apiUrl}/api/public/legal-pages/${slug}`, {
+                headers: { 'Accept': 'application/json' }
+            });
+            if (res.ok) {
+                const json = await res.json();
+                setPage(json.data);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-export default async function PublicLegalPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const page = await getLegalPage(slug);
+    fetchPage();
+  }, [slug]);
+
+  if (loading) {
+      return (
+          <div className="flex items-center justify-center min-h-[400px]">
+              <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+      );
+  }
 
   if (!page) {
-    notFound();
+    return notFound();
   }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-12">
       <div className="bg-white dark:bg-gray-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800">
         <div className="p-8 md:p-12">
-           {/* Header */}
+          {/* Header */}
           <div className="border-b border-gray-200 dark:border-gray-800 pb-8 mb-8">
             <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-600 to-blue-600 dark:from-brand-400 dark:to-blue-400 mb-4">
               {page.title}
@@ -78,4 +81,12 @@ export default async function PublicLegalPage({ params }: { params: Promise<{ sl
       </div>
     </div>
   );
+}
+
+export default function PublicLegalPage() {
+    return (
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div></div>}>
+            <LegalPageContent />
+        </Suspense>
+    );
 }

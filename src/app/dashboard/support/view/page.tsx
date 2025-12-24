@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import TicketDetailsClient from "../TicketDetailsClient";
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function TicketDetailsPage() {
-  return <TicketDetailsClient />;
+  return (
+    <Suspense fallback={<div className="text-center py-20">Loading Ticket...</div>}>
+        <TicketDetailsClient />
+    </Suspense>
+  );
 }

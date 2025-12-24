@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import CertificateDetailsClient from "./CertificateDetailsClient";
 
 export const metadata: Metadata = {
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function CertificateDetailPage() {
-  return <CertificateDetailsClient />;
+  return (
+    <Suspense fallback={<div className="text-center py-20">Loading Certificate Details...</div>}>
+        <CertificateDetailsClient />
+    </Suspense>
+  );
 }
