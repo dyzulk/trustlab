@@ -7,11 +7,11 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ComponentCard from "@/components/common/ComponentCard";
 import CertificateTable from "@/components/certificates/CertificateTable";
 import { PlusIcon } from "@/icons";
-import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/context/ToastContext";
 import Button from "@/components/ui/button/Button";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
+import CreateCertificateModal from "@/components/certificates/CreateCertificateModal";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -21,6 +21,7 @@ export default function CertificatesClient() {
   const { data, error, mutate, isLoading } = useSWR("/api/certificates", fetcher);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSettingUp, setIsSettingUp] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [confirmDeleteUuid, setConfirmDeleteUuid] = useState<string | null>(null);
 
   const isAdmin = user?.role === "admin";
@@ -59,6 +60,14 @@ export default function CertificatesClient() {
   const certificates = data?.data?.data || [];
   const caStatus = data?.ca_status;
   const caReady = caStatus?.is_ready;
+  
+  // Defaults for the modal
+  const createDefaults = {
+    organizationName: "TrustLab CA",
+    localityName: "Jakarta",
+    stateOrProvinceName: "DKI Jakarta",
+    countryName: "ID"
+  };
 
   return (
     <div>
@@ -97,13 +106,14 @@ export default function CertificatesClient() {
           title="Certificate Management" 
           desc="Manage and download your SSL/TLS certificates"
           headerAction={
-            <Link
-              href="/dashboard/certificates/create"
-              className={`flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 hover:bg-brand-600 ${!caReady ? "opacity-50 pointer-events-none" : ""}`}
+            <button
+              onClick={() => setIsCreateModalOpen(true)}
+              disabled={!caReady}
+              className={`flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white transition rounded-lg bg-brand-500 hover:bg-brand-600 ${!caReady ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               <PlusIcon className="w-4 h-4" />
               Generate New
-            </Link>
+            </button>
           }
         >
           <CertificateTable 
@@ -118,6 +128,13 @@ export default function CertificatesClient() {
           )}
         </ComponentCard>
       </div>
+
+      <CreateCertificateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={() => mutate()}
+        defaults={createDefaults}
+      />
 
       <ConfirmationModal
         isOpen={confirmDeleteUuid !== null}
