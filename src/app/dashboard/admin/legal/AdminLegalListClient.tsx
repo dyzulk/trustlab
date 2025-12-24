@@ -60,7 +60,7 @@ export default function AdminLegalListClient() {
         </Link>
       </div>
 
-      <ComponentCard className="p-0 overflow-hidden">
+      <ComponentCard title="Legal Pages List" className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead className="bg-gray-50 dark:bg-white/5 border-b border-gray-100 dark:border-gray-800">
