@@ -10,18 +10,9 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@fullcalendar/core": "^6.1.19",
-    "@fullcalendar/daygrid": "^6.1.19",
-    "@fullcalendar/interaction": "^6.1.19",
-    "@fullcalendar/list": "^6.1.19",
-    "@fullcalendar/react": "^6.1.19",
-    "@fullcalendar/timegrid": "^6.1.19",
-    "@react-jvectormap/core": "^1.0.4",
-    "@react-jvectormap/world": "^1.1.2",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/postcss": "^4.1.17",
     "@tailwindcss/typography": "^0.5.19",
-    "apexcharts": "^4.7.0",
     "autoprefixer": "^10.4.22",
     "axios": "^1.13.2",
     "flatpickr": "^4.6.13",
@@ -31,7 +22,6 @@
     "next-themes": "^0.4.6",
     "pusher-js": "^8.4.0",
     "react": "^19.2.0",
-    "react-apexcharts": "^1.8.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.2.0",
@@ -58,14 +48,6 @@
     "typescript": "^5.9.3"
   },
   "overrides": {
-    "@react-jvectormap/core": {
-      "react": "^16.8.0 || ^17 || ^18 || ^19",
-      "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
-    },
-    "@react-jvectormap/world": {
-      "react": "^16.8.0 || ^17 || ^18 || ^19",
-      "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
-    },
     "@cloudflare/next-on-pages": {
       "next": "$next"
     }
