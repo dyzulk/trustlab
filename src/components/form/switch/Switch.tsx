@@ -15,8 +15,12 @@ const Switch: React.FC<SwitchProps> = ({
   disabled = false,
   onChange,
   color = "blue", // Default to blue color
-}) => {
+  }) => {
   const [isChecked, setIsChecked] = useState(defaultChecked);
+
+  useEffect(() => {
+    setIsChecked(defaultChecked);
+  }, [defaultChecked]);
 
   const handleToggle = () => {
     if (disabled) return;
