@@ -1,5 +1,6 @@
 import React from "react";
 import ApiKeyManagement from "@/components/api-keys/ApiKeyManagement";
+import ApiUsageDocs from "@/components/ApiUsageDocs";
 import PageBreadCrumb from "@/components/common/PageBreadCrumb";
 
 export const metadata = {
@@ -14,6 +15,7 @@ export default function ApiKeysPage() {
       
       <div className="mt-6">
         <ApiKeyManagement />
+        <ApiUsageDocs />
       </div>
     </div>
   );
