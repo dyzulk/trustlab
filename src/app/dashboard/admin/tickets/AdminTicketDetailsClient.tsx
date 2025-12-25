@@ -94,6 +94,7 @@ export default function AdminTicketDetailsClient() {
       mutate();
       addToast("Support reply sent", "success");
     } catch (error: any) {
+      console.error("Reply error:", error.response?.data || error.message);
       addToast(parseApiError(error, "Failed to send reply"), "error");
     } finally {
       setIsSubmitting(false);
@@ -107,6 +108,7 @@ export default function AdminTicketDetailsClient() {
       addToast("Ticket has been marked as closed", "success");
       setIsCloseModalOpen(false);
     } catch (error: any) {
+      console.error("Close ticket error:", error.response?.data || error.message);
       addToast(parseApiError(error, "Failed to close ticket"), "error");
     }
   };

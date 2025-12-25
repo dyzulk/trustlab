@@ -87,6 +87,7 @@ export default function TicketListClient() {
       setSelectedFiles([]);
       mutate();
     } catch (error: any) {
+      console.error("Ticket creation error:", error.response?.data || error.message);
       addToast(parseApiError(error, "Failed to create ticket"), "error");
     } finally {
       setIsSubmitting(false);
@@ -219,6 +220,7 @@ export default function TicketListClient() {
                   className="w-full px-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-brand-500 text-gray-900 dark:text-white"
                   value={newTicket.subject}
                   onChange={(e) => setNewTicket({ ...newTicket, subject: e.target.value })}
+                  maxLength={255}
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">

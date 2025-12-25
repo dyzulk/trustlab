@@ -89,6 +89,7 @@ export default function TicketDetailsClient() {
       mutate();
       addToast("Reply sent successfully", "success");
     } catch (error: any) {
+      console.error("Reply error:", error.response?.data || error.message);
       addToast(parseApiError(error, "Failed to send reply"), "error");
     } finally {
       setIsSubmitting(false);
@@ -102,6 +103,7 @@ export default function TicketDetailsClient() {
       addToast("Ticket closed", "success");
       setIsCloseModalOpen(false);
     } catch (error: any) {
+      console.error("Close ticket error:", error.response?.data || error.message);
       addToast(parseApiError(error, "Failed to close ticket"), "error");
     }
   };
