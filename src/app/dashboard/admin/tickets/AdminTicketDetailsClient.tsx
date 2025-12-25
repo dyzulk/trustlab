@@ -91,8 +91,6 @@ export default function AdminTicketDetailsClient() {
       setSelectedFiles([]);
       mutate();
       addToast("Support reply sent", "success");
-      mutate();
-      addToast("Support reply sent", "success");
     } catch (error: any) {
       console.error("Reply error:", error.response?.data || error.message);
       addToast(parseApiError(error, "Failed to send reply"), "error");
