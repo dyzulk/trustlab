@@ -261,7 +261,7 @@ export default function TicketDetailsClient() {
                  <textarea
                    rows={3}
                    placeholder="Type your message here... (Ctrl+Enter to send)"
-                   className="w-full p-4 pr-16 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl focus:ring-2 focus:ring-brand-500 resize-none transition-all placeholder:text-gray-400 dark:placeholder:text-white/20"
+                   className="w-full p-4 pr-16 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl focus:ring-2 focus:ring-brand-500 resize-none transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 text-gray-900 dark:text-white"
                    value={replyMessage}
                    onChange={(e) => setReplyMessage(e.target.value)}
                    onKeyDown={(e) => {

@@ -247,7 +247,7 @@ export default function AdminTicketDetailsClient() {
                         <textarea
                           rows={4}
                           placeholder="Write your support response... (Ctrl+Enter to send)"
-                          className="w-full p-4 pr-16 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl focus:ring-2 focus:ring-brand-500 resize-none transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 font-medium"
+                          className="w-full p-4 pr-16 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl focus:ring-2 focus:ring-brand-500 resize-none transition-all placeholder:text-gray-400 dark:placeholder:text-white/20 font-medium text-gray-900 dark:text-white"
                           value={replyMessage}
                           onChange={(e) => setReplyMessage(e.target.value)}
                           onKeyDown={(e) => {
