@@ -44,27 +44,28 @@ export default function KeyGeneratorClient() {
                         <div>
                             <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 text-center">Your Generated Security Key</label>
                             <div className="relative group">
-                                <div className="w-full rounded-2xl border-gray-200 bg-gray-50/50 p-6 text-sm font-mono text-gray-900 transition dark:border-gray-700 dark:bg-gray-800/50 dark:text-white break-all text-center min-h-[60px] flex items-center justify-center">
-                                    {generatedKey || 'Generating...'}
+                                <div className="flex items-center gap-2 p-1 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl">
+                                    <div className="flex-1 p-5 text-sm font-mono text-gray-900 dark:text-white break-all text-center min-h-[60px] flex items-center justify-center">
+                                        {generatedKey || 'Generating...'}
+                                    </div>
+                                    {generatedKey && (
+                                        <button 
+                                            onClick={copy}
+                                            className="p-4 mr-1 bg-brand-500 text-white rounded-xl shadow-lg shadow-brand-500/20 hover:scale-105 transition-all active:scale-95 flex-shrink-0"
+                                            title="Copy to clipboard"
+                                        >
+                                            {!copying ? (
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                                            ) : (
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                                 
-                                {generatedKey && (
-                                    <button 
-                                        onClick={copy}
-                                        className="absolute top-1/2 -right-4 -translate-y-1/2 p-4 bg-brand-500 text-white rounded-2xl shadow-xl shadow-brand-500/30 hover:scale-110 transition-all active:scale-95"
-                                        title="Copy to clipboard"
-                                    >
-                                        {!copying ? (
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                                        ) : (
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                        )}
-                                    </button>
-                                )}
-                                
                                 {copying && (
-                                    <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-brand-600 text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg animate-in fade-in slide-in-from-bottom-2">
-                                        COPIED TO CLIPBOARD
+                                    <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-[10px] font-bold px-4 py-1.5 rounded-full shadow-lg animate-in fade-in slide-in-from-bottom-2 z-20">
+                                        COPIED!
                                     </div>
                                 )}
                             </div>
