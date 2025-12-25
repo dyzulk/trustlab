@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import ComponentCard from './common/ComponentCard';
 
 // Simple Tab Component since we're using Tailwind directly
 function Tabs({ tabs }: { tabs: { label: string; content: React.ReactNode }[] }) {
@@ -8,14 +9,14 @@ function Tabs({ tabs }: { tabs: { label: string; content: React.ReactNode }[] })
 
     return (
         <div className="w-full">
-            <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-700">
+            <div className="flex overflow-x-auto border-b border-gray-200 dark:border-gray-800">
                 {tabs.map((tab, index) => (
                     <button
                         key={index}
                         onClick={() => setActiveTab(index)}
                         className={`px-4 py-2 text-sm font-medium whitespace-nowrap focus:outline-none transition-colors duration-200 ${
                             activeTab === index
-                                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+                                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-500 dark:border-blue-500'
                                 : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b-2 border-transparent'
                         }`}
                     >
@@ -23,7 +24,7 @@ function Tabs({ tabs }: { tabs: { label: string; content: React.ReactNode }[] })
                     </button>
                 ))}
             </div>
-            <div className="p-4 bg-gray-50 dark:bg-dark-3 rounded-b-lg mt-0 border border-t-0 border-gray-200 dark:border-gray-700">
+            <div className="p-4 bg-gray-50 dark:bg-white/[0.02] rounded-b-lg mt-0">
                 {tabs[activeTab].content}
             </div>
         </div>
@@ -32,7 +33,7 @@ function Tabs({ tabs }: { tabs: { label: string; content: React.ReactNode }[] })
 
 function CodeBlock({ code }: { code: string }) {
     return (
-        <pre className="p-3 bg-gray-900 text-gray-100 rounded text-sm overflow-x-auto font-mono">
+        <pre className="p-3 bg-gray-900 text-gray-100 rounded text-sm overflow-x-auto font-mono custom-scrollbar">
             <code>{code}</code>
         </pre>
     );
@@ -198,14 +199,14 @@ func main() {
     }));
 
     return (
-        <div className="mt-8 border dark:border-gray-700 rounded-lg p-6 bg-white dark:bg-dark-2">
-            <h2 className="text-xl font-bold mb-4 text-dark dark:text-white">API Usage Documentation</h2>
-            <p className="mb-4 text-gray-600 dark:text-gray-400">
-                You can use your API key to authenticate requests to the TrustLab API. 
-                Include the key in the <code>TRUSTLAB_API_KEY</code> header.
-            </p>
-            <Tabs tabs={tabs} />
-        </div>
+        <ComponentCard title="API Usage Documentation" desc="Learn how to authenticate and use the API programmatically.">
+            <div>
+                <p className="mb-4 text-gray-600 dark:text-gray-400">
+                    You can use your API key to authenticate requests to the TrustLab API. 
+                    Include the key in the <code>TRUSTLAB_API_KEY</code> header.
+                </p>
+                <Tabs tabs={tabs} />
+            </div>
+        </ComponentCard>
     );
 }
-
