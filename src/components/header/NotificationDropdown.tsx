@@ -1,241 +1,152 @@
-"use client";
-import Image from "next/image";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import React, { useState, useMemo, useEffect } from "react";
-import useSWR from "swr";
 import axios from "@/lib/axios";
-import { Dropdown } from "../ui/dropdown/Dropdown";
-import { DropdownItem } from "../ui/dropdown/DropdownItem";
-import { getUserAvatar } from "@/lib/utils";
-import { X, MessageSquare, Bell, Info, CheckCircle2 } from "lucide-react";
-import echo from "@/lib/echo";
-import { useAuth } from "@/hooks/useAuth";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+interface Notification {
+  id: string;
+  type: string;
+  data: {
+    message: string;
+    certificate_id?: number;
+    common_name?: string;
+    days_remaining?: number;
+  };
+  read_at: string | null;
+  created_at: string;
+}
 
 export default function NotificationDropdown() {
-  const { user } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
-  const { data, mutate, isLoading } = useSWR("/api/notifications", fetcher);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [notifying, setNotifying] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // Realtime Listener
+  const trigger = useRef<any>(null);
+  const dropdown = useRef<any>(null);
+
   useEffect(() => {
-    if (user?.id && echo) {
-        const channel = echo.private(`App.Models.User.${user.id}`);
-        
-        channel.notification((notification: any) => {
-            mutate(); // Revalidate SWR
-            // Optional: Show toast or play sound
-        });
+    fetchNotifications();
+  }, []);
 
-        return () => {
-             echo?.leave(`App.Models.User.${user.id}`);
-        };
+  const fetchNotifications = async () => {
+    try {
+      const response = await axios.get("/api/notifications");
+      setNotifications(response.data.data);
+      const unreadCount = response.data.data.filter((n: Notification) => !n.read_at).length;
+      setNotifying(unreadCount > 0);
+    } catch (error) {
+      console.error("Failed to fetch notifications:", error);
     }
-  }, [user?.id, mutate]);
-
-  const notifications = data?.data || [];
-  const unreadCount = notifications.filter((n: any) => !n.read_at).length;
-
-  function toggleDropdown() {
-    setIsOpen(!isOpen);
-  }
-
-  function closeDropdown() {
-    setIsOpen(false);
-  }
+  };
 
   const markAsRead = async (id: string) => {
     try {
       await axios.patch(`/api/notifications/${id}/read`);
-      mutate();
+      setNotifications(notifications.map(n => n.id === id ? { ...n, read_at: new Date().toISOString() } : n));
+      const unreadCount = notifications.filter(n => !n.read_at && n.id !== id).length;
+      setNotifying(unreadCount > 0);
     } catch (error) {
-      console.error("Failed to mark notification as read", error);
+      console.error("Failed to mark notification as read:", error);
     }
   };
 
   const markAllAsRead = async () => {
-    try {
-      await axios.post("/api/notifications/mark-all-read");
-      mutate();
-    } catch (error) {
-      console.error("Failed to mark all as read", error);
-    }
-  };
+      try {
+          await axios.post('/api/notifications/mark-all-read');
+          setNotifications(notifications.map(n => ({ ...n, read_at: new Date().toISOString() })));
+          setNotifying(false);
+      } catch (error) {
+          console.error("Failed to mark all as read:", error);
+      }
+  }
 
-  const deleteNotification = async (e: React.MouseEvent, id: string) => {
-    e.stopPropagation();
-    try {
-      await axios.delete(`/api/notifications/${id}`);
-      mutate();
-    } catch (error) {
-      console.error("Failed to delete notification", error);
-    }
-  };
+  // Close on click outside
+  useEffect(() => {
+    const clickHandler = ({ target }: MouseEvent) => {
+      if (!dropdown.current) return;
+      if (
+        !dropdownOpen ||
+        dropdown.current.contains(target) ||
+        trigger.current.contains(target)
+      )
+        return;
+      setDropdownOpen(false);
+    };
+    document.addEventListener("click", clickHandler);
+    return () => document.removeEventListener("click", clickHandler);
+  });
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-    if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} min ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hr ago`;
-    return date.toLocaleDateString();
-  };
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'inquiry':
-        return <MessageSquare className="w-4 h-4" />;
-      case 'system':
-        return <Info className="w-4 h-4" />;
-      default:
-        return <Bell className="w-4 h-4" />;
-    }
-  };
+  // Close if the esc key is pressed
+  useEffect(() => {
+    const keyHandler = ({ keyCode }: KeyboardEvent) => {
+      if (!dropdownOpen || keyCode !== 27) return;
+      setDropdownOpen(false);
+    };
+    document.addEventListener("keydown", keyHandler);
+    return () => document.removeEventListener("keydown", keyHandler);
+  });
 
   return (
     <div className="relative">
       <button
-        className="relative dropdown-toggle flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-gray-700 h-11 w-11 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
-        onClick={toggleDropdown}
+        ref={trigger}
+        onClick={() => {
+            setDropdownOpen(!dropdownOpen)
+            if (!dropdownOpen) fetchNotifications(); // Refresh on open
+        }}
+        className="relative flex items-center justify-center text-gray-500 transition-colors bg-white border border-gray-200 rounded-full hover:text-dark-900 h-11 w-11 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white"
       >
-        {unreadCount > 0 && (
-          <span className="absolute right-0 top-0.5 z-10 h-2 w-2 rounded-full bg-orange-400 flex">
-            <span className="absolute inline-flex w-full h-full bg-orange-400 rounded-full opacity-75 animate-ping"></span>
-          </span>
-        )}
-        <svg
-          className="fill-current"
-          width="20"
-          height="20"
-          viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg"
+        <span
+          className={`absolute -top-0.5 right-0 z-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-red-500 dark:border-gray-900 ${
+            notifying ? "inline" : "hidden"
+          }`}
         >
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M10.75 2.29248C10.75 1.87827 10.4143 1.54248 10 1.54248C9.58583 1.54248 9.25004 1.87827 9.25004 2.29248V2.83613C6.08266 3.20733 3.62504 5.9004 3.62504 9.16748V14.4591H3.33337C2.91916 14.4591 2.58337 14.7949 2.58337 15.2091C2.58337 15.6234 2.91916 15.9591 3.33337 15.9591H4.37504H15.625H16.6667C17.0809 15.9591 17.4167 15.6234 17.4167 15.2091C17.4167 14.7949 17.0809 14.4591 16.6667 14.4591H16.375V9.16748C16.375 5.9004 13.9174 3.20733 10.75 2.83613V2.29248ZM14.875 14.4591V9.16748C14.875 6.47509 12.6924 4.29248 10 4.29248C7.30765 4.29248 5.12504 6.47509 5.12504 9.16748V14.4591H14.875ZM8.00004 17.7085C8.00004 18.1228 8.33583 18.4585 8.75004 18.4585H11.25C11.6643 18.4585 12 18.1228 12 17.7085C12 17.2943 11.6643 16.9585 11.25 16.9585H8.75004C8.33583 16.9585 8.00004 17.2943 8.00004 17.7085Z"
-            fill="currentColor"
-          />
-        </svg>
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75"></span>
+        </span>
+
+        <svg className="hidden dark:block" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" clipRule="evenodd" d="M9.99998 1.5415C10.4142 1.5415 10.75 1.87729 10.75 2.2915V3.5415C10.75 3.95572 10.4142 4.2915 9.99998 4.2915C9.58577 4.2915 9.24998 3.95572 9.24998 3.5415V2.2915C9.24998 1.87729 9.58577 1.5415 9.99998 1.5415ZM10.0009 6.79327C8.22978 6.79327 6.79402 8.22904 6.79402 10.0001C6.79402 11.7712 8.22978 13.207 10.0009 13.207C11.772 13.207 13.2078 11.7712 13.2078 10.0001C13.2078 8.22904 11.772 6.79327 10.0009 6.79327ZM5.29402 10.0001C5.29402 7.40061 7.40135 5.29327 10.0009 5.29327C12.6004 5.29327 14.7078 7.40061 14.7078 10.0001C14.7078 12.5997 12.6004 14.707 10.0009 14.707C7.40135 14.707 5.29402 12.5997 5.29402 10.0001ZM15.9813 5.08035C16.2742 4.78746 16.2742 4.31258 15.9813 4.01969C15.6884 3.7268 15.2135 3.7268 14.9207 4.01969L14.0368 4.90357C13.7439 5.19647 13.7439 5.67134 14.0368 5.96423C14.3297 6.25713 14.8045 6.25713 15.0974 5.96423L15.9813 5.08035ZM18.4577 10.0001C18.4577 10.4143 18.1219 10.7501 17.7077 10.7501H16.4577C16.0435 10.7501 15.7077 10.4143 15.7077 10.0001C15.7077 9.58592 16.0435 9.25013 16.4577 9.25013H17.7077C18.1219 9.25013 18.4577 9.58592 18.4577 10.0001ZM14.9207 15.9806C15.2135 16.2735 15.6884 16.2735 15.9813 15.9806C16.2742 15.6877 16.2742 15.2128 15.9813 14.9199L15.0974 14.036C14.8045 13.7431 14.3297 13.7431 14.0368 14.036C13.7439 14.3289 13.7439 14.8038 14.0368 15.0967L14.9207 15.9806ZM9.99998 15.7088C10.4142 15.7088 10.75 16.0445 10.75 16.4588V17.7088C10.75 18.123 10.4142 18.4588 9.99998 18.4588C9.58577 18.4588 9.24998 18.123 9.24998 17.7088V16.4588C9.24998 16.0445 9.58577 15.7088 9.99998 15.7088ZM5.96356 15.0972C6.25646 14.8043 6.25646 14.3295 5.96356 14.0366C5.67067 13.7437 5.1958 13.7437 4.9029 14.0366L4.01902 14.9204C3.72613 15.2133 3.72613 15.6882 4.01902 15.9811C4.31191 16.274 4.78679 16.274 5.07968 15.9811L5.96356 15.0972ZM4.29224 10.0001C4.29224 10.4143 3.95645 10.7501 3.54224 10.7501H2.29224C1.87802 10.7501 1.54224 10.4143 1.54224 10.0001C1.54224 9.58592 1.87802 9.25013 2.29224 9.25013H3.54224C3.95645 9.25013 4.29224 9.58592 4.29224 10.0001ZM4.9029 5.9637C5.1958 6.25659 5.67067 6.25659 5.96356 5.9637C6.25646 5.6708 6.25646 5.19593 5.96356 4.90303L5.07968 4.01915C4.78679 3.72626 4.31191 3.72626 4.01902 4.01915C3.72613 4.31204 3.72613 4.78692 4.01902 5.07981L4.9029 5.9637Z" fill="currentColor"></path></svg><svg className="dark:hidden" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17.4547 11.97L18.1799 12.1611C18.265 11.8383 18.1265 11.4982 17.8401 11.3266C17.5538 11.1551 17.1885 11.1934 16.944 11.4207L17.4547 11.97ZM8.0306 2.5459L8.57989 3.05657C8.80718 2.81209 8.84554 2.44682 8.67398 2.16046C8.50243 1.8741 8.16227 1.73559 7.83948 1.82066L8.0306 2.5459ZM12.9154 13.0035C9.64678 13.0035 6.99707 10.3538 6.99707 7.08524H5.49707C5.49707 11.1823 8.81835 14.5035 12.9154 14.5035V13.0035ZM16.944 11.4207C15.8869 12.4035 14.4721 13.0035 12.9154 13.0035V14.5035C14.8657 14.5035 16.6418 13.7499 17.9654 12.5193L16.944 11.4207ZM16.7295 11.7789C15.9437 14.7607 13.2277 16.9586 10.0003 16.9586V18.4586C13.9257 18.4586 17.2249 15.7853 18.1799 12.1611L16.7295 11.7789ZM10.0003 16.9586C6.15734 16.9586 3.04199 13.8433 3.04199 10.0003H1.54199C1.54199 14.6717 5.32892 18.4586 10.0003 18.4586V16.9586ZM3.04199 10.0003C3.04199 6.77289 5.23988 4.05695 8.22173 3.27114L7.83948 1.82066C4.21532 2.77574 1.54199 6.07486 1.54199 10.0003H3.04199ZM6.99707 7.08524C6.99707 5.52854 7.5971 4.11366 8.57989 3.05657L7.48132 2.03522C6.25073 3.35885 5.49707 5.13487 5.49707 7.08524H6.99707Z" fill="currentColor"></path></svg>
       </button>
-      <Dropdown
-        isOpen={isOpen}
-        onClose={closeDropdown}
-        className="absolute -right-[240px] mt-[17px] flex h-[480px] w-[350px] flex-col rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark sm:w-[361px] lg:right-0"
+
+      <div
+        ref={dropdown}
+        onFocus={() => setDropdownOpen(true)}
+        onBlur={() => setDropdownOpen(false)}
+        className={`absolute -right-27 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80 ${
+          dropdownOpen === true ? "block" : "hidden"
+        }`}
       >
-        <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700 px-2">
-          <div className="flex items-center gap-2">
-            <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-              Notification
-            </h5>
-            {unreadCount > 0 && (
-              <span className="flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold text-white bg-brand-500 rounded-lg">
-                {unreadCount}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-1">
-            {unreadCount > 0 && (
-              <button
-                onClick={markAllAsRead}
-                className="p-1.5 text-gray-400 hover:text-brand-500 transition-colors"
-                title="Mark all as read"
-              >
-                <CheckCircle2 className="w-4 h-4" />
-              </button>
-            )}
-            <button
-              onClick={toggleDropdown}
-              className="p-1.5 text-gray-500 transition dropdown-toggle dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+          <h5 className="text-sm font-medium text-bodydark2 dark:text-gray-200">Notification</h5>
+          <button onClick={markAllAsRead} className="text-xs text-brand-500 hover:underline">Mark all read</button>
         </div>
-        
-        <ul className="flex flex-col h-auto overflow-y-auto custom-scrollbar flex-grow">
-          {isLoading ? (
-            <div className="py-10 text-center space-y-3">
-              <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-              <p className="text-xs text-gray-500">Loading notifications...</p>
-            </div>
-          ) : notifications.length > 0 ? (
-            notifications.map((n: any) => (
-              <li key={n.id}>
-                <DropdownItem
-                  tag="a"
-                  onItemClick={() => {
-                    if (!n.read_at) markAsRead(n.id);
-                    closeDropdown();
-                  }}
-                  href={n.data.url || "#"}
-                  className={`flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5 relative group ${!n.read_at ? 'bg-brand-50/30 dark:bg-brand-500/5' : ''}`}
-                >
-                  <span className="relative block w-full h-10 rounded-full z-1 max-w-10">
-                    <Image
-                      width={40}
-                      height={40}
-                      src={getUserAvatar({ name: n.data.name || "System" })}
-                      alt="User"
-                      className="w-full overflow-hidden rounded-full"
-                      unoptimized={true}
-                    />
-                    {!n.read_at && (
-                      <span className="absolute bottom-0 right-0 z-10 h-2.5 w-full max-w-2.5 rounded-full border-[1.5px] border-white bg-brand-500 dark:border-gray-900"></span>
-                    )}
-                  </span>
 
-                  <span className="block flex-grow overflow-hidden">
-                    <span className="mb-1 block text-theme-sm text-gray-500 dark:text-gray-400 leading-snug">
-                       <span className={`dark:text-white/90 ${!n.read_at ? 'font-bold text-gray-900' : 'text-gray-800 font-medium'}`}>
-                        {n.data.message}
-                      </span>
-                    </span>
-
-                    <span className="flex items-center gap-2 text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wider font-bold">
-                      <span className="flex items-center gap-1">
-                        {getNotificationIcon(n.data.type)}
-                        {n.data.type || 'system'}
-                      </span>
-                      <span className="w-1 h-1 bg-gray-300 dark:bg-gray-700 rounded-full"></span>
-                      <span>{formatTime(n.created_at)}</span>
-                    </span>
-                  </span>
-
-                  <button
-                    onClick={(e) => deleteNotification(e, n.id)}
-                    className="absolute right-2 top-3 p-1 text-gray-300 hover:text-red-500 transition-opacity opacity-0 group-hover:opacity-100"
-                    title="Delete"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </DropdownItem>
-              </li>
-            ))
-          ) : (
-            <div className="py-20 text-center px-4">
-              <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Bell className="w-6 h-6 text-gray-300" />
-              </div>
-              <p className="text-sm font-medium text-gray-900 dark:text-white">No notifications yet</p>
-              <p className="text-xs text-gray-500 mt-1">We'll notify you when something important happens.</p>
-            </div>
+        <ul className="flex h-auto flex-col overflow-y-auto">
+          {notifications.length === 0 && (
+             <li className="flex flex-col gap-2.5 border-b border-stroke px-4 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4">
+                 <p className="text-sm text-gray-500 dark:text-gray-400">No notifications</p>
+             </li>
           )}
+          {notifications.map((notification) => (
+            <li key={notification.id}>
+              <Link
+                className="flex flex-col gap-2.5 border-b border-stroke px-4 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4"
+                href="#"
+                onClick={(e) => {
+                    e.preventDefault();
+                    markAsRead(notification.id);
+                }}
+              >
+                <p className={`text-sm ${!notification.read_at ? 'font-bold text-gray-800 dark:text-white' : 'text-gray-500'}`}>
+                  {notification.data.message || "New Notification"}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {new Date(notification.created_at).toLocaleDateString()}
+                </p>
+              </Link>
+            </li>
+          ))}
         </ul>
-
-        {notifications.length > 0 && (
-          <Link
-            href="/dashboard/notifications"
-            className="block px-4 py-3 mt-3 text-xs font-bold text-center text-gray-700 dark:text-gray-400 bg-gray-50 dark:bg-white/5 rounded-xl hover:bg-gray-100 dark:hover:bg-white/10 transition-colors uppercase tracking-widest"
-            onClick={closeDropdown}
-          >
-            View All Notifications
-          </Link>
-        )}
-      </Dropdown>
+      </div>
     </div>
   );
 }
