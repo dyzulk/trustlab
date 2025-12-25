@@ -13,7 +13,7 @@ export default function ApiKeysPage() {
     <div className="mx-auto max-w-(--breakpoint-2xl) p-4 md:p-6 lg:p-10">
       <PageBreadCrumb pageTitle="API Keys" />
       
-      <div className="mt-6">
+      <div className="mt-6 space-y-6">
         <ApiKeyManagement />
         <ApiUsageDocs />
       </div>
