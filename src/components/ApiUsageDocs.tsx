@@ -13,17 +13,17 @@ function Tabs({ tabs }: { tabs: { label: string; content: React.ReactNode }[] })
                     <button
                         key={index}
                         onClick={() => setActiveTab(index)}
-                        className={`px-4 py-2 text-sm font-medium whitespace-nowrap focus:outline-none ${
+                        className={`px-4 py-2 text-sm font-medium whitespace-nowrap focus:outline-none transition-colors duration-200 ${
                             activeTab === index
-                                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-500 dark:border-blue-500'
-                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+                                ? 'text-blue-600 border-b-2 border-blue-600 dark:text-blue-400 dark:border-blue-400'
+                                : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 border-b-2 border-transparent'
                         }`}
                     >
                         {tab.label}
                     </button>
                 ))}
             </div>
-            <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-b-lg mt-0">
+            <div className="p-4 bg-gray-50 dark:bg-dark-3 rounded-b-lg mt-0 border border-t-0 border-gray-200 dark:border-gray-700">
                 {tabs[activeTab].content}
             </div>
         </div>
@@ -32,14 +32,16 @@ function Tabs({ tabs }: { tabs: { label: string; content: React.ReactNode }[] })
 
 function CodeBlock({ code }: { code: string }) {
     return (
-        <pre className="p-3 bg-gray-900 text-gray-100 rounded text-sm overflow-x-auto">
+        <pre className="p-3 bg-gray-900 text-gray-100 rounded text-sm overflow-x-auto font-mono">
             <code>{code}</code>
         </pre>
     );
 }
 
 export default function ApiUsageDocs({ apiKey = 'YOUR_API_KEY' }: { apiKey?: string }) {
-    const baseUrl = 'https://trustlab-api.dyzulk.com/api/v1';
+    // Determine Base URL dynamically, ensuring it ends with /api/v1
+    const envApiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://trustlab-api.dyzulk.com/api';
+    const baseUrl = envApiUrl.endsWith('/v1') ? envApiUrl : `${envApiUrl}/v1`;
     
     // Snippet Generators
     const snippets = [
@@ -206,3 +208,4 @@ func main() {
         </div>
     );
 }
+
