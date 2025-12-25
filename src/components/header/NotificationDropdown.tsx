@@ -21,11 +21,9 @@ export default function NotificationDropdown() {
   // Realtime Listener
   useEffect(() => {
     if (user?.id && echo) {
-        console.log(`Listening for notifications on App.Models.User.${user.id}`);
         const channel = echo.private(`App.Models.User.${user.id}`);
         
         channel.notification((notification: any) => {
-            console.log("New Notification Received:", notification);
             mutate(); // Revalidate SWR
             // Optional: Show toast or play sound
         });
