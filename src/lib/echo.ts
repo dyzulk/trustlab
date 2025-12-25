@@ -1,5 +1,6 @@
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
+import axios from '@/lib/axios';
 
 declare global {
     interface Window {
@@ -22,12 +23,24 @@ if (typeof window !== 'undefined') {
         forceTLS: (process.env.NEXT_PUBLIC_REVERB_SCHEME ?? 'https') === 'https',
         enabledTransports: ['ws', 'wss'],
         authEndpoint: `${process.env.NEXT_PUBLIC_API_URL}/broadcasting/auth`,
-        auth: {
-            headers: {
-                Accept: 'application/json',
-            },
+        authorizer: (channel: any, options: any) => {
+            return {
+                authorize: (socketId: any, callback: any) => {
+                    axios.post(`${process.env.NEXT_PUBLIC_API_URL}/broadcasting/auth`, {
+                        socket_id: socketId,
+                        channel_name: channel.name
+                    })
+                    .then(response => {
+                        callback(false, response.data);
+                    })
+                    .catch(error => {
+                        callback(true, error);
+                    });
+                }
+            };
         },
     });
 }
 
 export default echo;
+
