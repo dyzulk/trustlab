@@ -1,4 +1,5 @@
-import { Outfit } from 'next/font/google';
+import { GeistSans } from "geist/font/sans";
+import { GeistMono } from "geist/font/mono";
 import './globals.css';
 import { Metadata } from 'next';
 
@@ -16,10 +17,6 @@ export const metadata: Metadata = {
   description: 'Advanced Certificate Authority and PKI Management System',
 };
 
-const outfit = Outfit({
-  subsets: ["latin"],
-});
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +24,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${outfit.className} dark:bg-gray-900`}>
+      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased dark:bg-gray-900`}>
         <ThemeProvider>
           <ToastProvider>
             <SidebarProvider>{children}</SidebarProvider>

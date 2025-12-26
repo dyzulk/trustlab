@@ -4,8 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-*: initial;
-  --font-outfit: Outfit, sans-serif;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 
   --breakpoint-*: initial;
   --breakpoint-2xsm: 375px;
@@ -189,7 +189,7 @@
     cursor: pointer;
   }
   body {
-    @apply relative font-normal font-outfit z-1 bg-gray-50;
+    @apply relative font-sans z-1 bg-gray-50;
   }
 }
 
