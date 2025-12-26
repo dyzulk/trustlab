@@ -3,6 +3,14 @@
 import Link from "next/link";
 import CommonGridShape from "@/components/common/CommonGridShape";
 import { useEffect, useState } from "react";
+import axios from '@/lib/axios';
+
+interface CaCertificate {
+    name: string;
+    type: string;
+    serial: string;
+    expires_at: string;
+}
 
 // Simple internal ScrollToTop component
 function ScrollToTop() {
@@ -45,7 +53,26 @@ function ScrollToTop() {
 }
 
 export default function HomeClient() {
-    // Smooth scrolling implementation for features link (reused from layout logic or simplified here)
+    const [certificates, setCertificates] = useState<CaCertificate[]>([]);
+    const [loadingCerts, setLoadingCerts] = useState(true);
+
+    useEffect(() => {
+        const fetchCertificates = async () => {
+            try {
+                const response = await axios.get('/api/public/ca-certificates');
+                if (response.data.success) {
+                    setCertificates(response.data.data);
+                }
+            } catch (error) {
+                console.error("Failed to fetch certificates", error);
+            } finally {
+                setLoadingCerts(false);
+            }
+        };
+
+        fetchCertificates();
+    }, []);
+
     const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
         e.preventDefault();
         const element = document.querySelector(id);
@@ -59,6 +86,7 @@ export default function HomeClient() {
             });
         }
     };
+
 
     return (
         <div className="relative flex-grow flex flex-col">
@@ -171,6 +199,102 @@ export default function HomeClient() {
                                 </p>
                             </div>
                         </div>
+                    </div>
+                </section>
+
+                {/* Trust Store Section */}
+                <section id="trust-store" className="py-24 bg-white dark:bg-gray-800 relative overflow-hidden">
+                     {/* Gradient Background */}
+                    <div className="absolute inset-0 opacity-30 dark:opacity-10 pointer-events-none">
+                         <div className="absolute -top-20 -right-20 w-96 h-96 bg-brand-500/20 rounded-full blur-[100px]"></div>
+                        <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-blue-500/20 rounded-full blur-[100px]"></div>
+                    </div>
+
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Public Trust Store</h2>
+                            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                                Download our Root and Intermediate CA certificates to trust secure connections issued by TrustLab.
+                            </p>
+                        </div>
+
+                        {loadingCerts ? (
+                            <div className="flex justify-center py-12">
+                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-brand-500"></div>
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                                {certificates.map((cert) => (
+                                    <div key={cert.serial} className="bg-gray-50 dark:bg-gray-900/50 rounded-3xl p-8 border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300">
+                                        <div className="flex items-start justify-between mb-6">
+                                            <div>
+                                                <span className={`inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-3 ${
+                                                    cert.type === 'root' 
+                                                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400' 
+                                                    : 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400'
+                                                }`}>
+                                                    {cert.type === 'root' ? 'Root CA' : 'Intermediate CA'}
+                                                </span>
+                                                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{cert.name}</h3>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 font-mono">Serial: {cert.serial}</p>
+                                            </div>
+                                            <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-400 shadow-sm">
+                                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-3">
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <a 
+                                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/public/ca-certificates/${cert.serial}/download`} 
+                                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 rounded-xl border border-gray-200 dark:border-gray-700 font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                                                    title="Download Standard CRT (PEM)"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                    </svg>
+                                                    Standard
+                                                </a>
+                                                <a 
+                                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/public/ca-certificates/${cert.serial}/download?format=der`} 
+                                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-400 rounded-xl border border-green-200 dark:border-green-500/20 font-medium text-sm hover:bg-green-100 dark:hover:bg-green-500/20 transition-colors"
+                                                    title="Download for Android (DER)"
+                                                >
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M17.523 15.3414C17.523 16.7113 16.4805 17.7719 15.1743 17.7719C13.8681 17.7719 12.8257 16.7113 12.8257 15.3414C12.8257 13.9715 13.8681 12.9109 15.1743 12.9109C16.4805 12.9109 17.523 13.9715 17.523 15.3414ZM11.1714 15.3414C11.1714 16.7113 10.1289 17.7719 8.82276 17.7719C7.51659 17.7719 6.47412 16.7113 6.47412 15.3414C6.47412 13.9715 7.51659 12.9109 8.82276 12.9109C10.1289 12.9109 11.1714 13.9715 11.1714 15.3414ZM16.3262 5.86762L17.7119 3.44754C17.7981 3.29806 17.7513 3.10499 17.5932 3.01894C17.4391 2.92983 17.2505 2.97372 17.152 3.1232L15.7251 5.61793C14.0754 4.86961 12.1956 4.86961 10.5982 5.5645L9.1713 3.06977C9.0768 2.92028 8.88412 2.87234 8.73004 2.9654C8.5719 3.05144 8.52504 3.24451 8.6112 3.394L9.99708 5.8143C6.31383 7.82084 3.86221 11.6968 3.86221 16.0359H20.1378C20.1378 11.6968 17.6862 7.82084 16.3262 5.86762Z"/>
+                                                    </svg>
+                                                    Android
+                                                </a>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <a 
+                                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/public/ca-certificates/${cert.serial}/download/windows`} 
+                                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 rounded-xl border border-blue-200 dark:border-blue-500/20 font-medium text-sm hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
+                                                    title="Download Windows Installer (.bat)"
+                                                >
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M0 3.449L9.75 2.134V11.3L0 11.3V3.449ZM9.75 12.7L0 12.7V20.551L9.75 19.166V12.7ZM10.5 1.998L24 0.166V11.3L10.5 11.3V1.998ZM10.5 12.7L24 12.7V23.834L10.5 21.966V12.7Z"/>
+                                                    </svg>
+                                                    Windows
+                                                </a>
+                                                 <a 
+                                                    href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/public/ca-certificates/${cert.serial}/download/mac`} 
+                                                    className="flex items-center justify-center gap-2 px-4 py-3 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-xl border border-gray-200 dark:border-gray-600 font-medium text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                                    title="Download macOS Profile (.mobileconfig)"
+                                                >
+                                                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                                        <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.21-1.96 1.07-3.11-1.05.05-2.31.74-3.03 1.59-.65.77-1.2 2.02-1.07 3.12 1.17.09 2.36-.73 3.03-1.6"/>
+                                                    </svg>
+                                                    macOS
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </section>
 
