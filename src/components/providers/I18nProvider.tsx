@@ -21,11 +21,19 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
     const [messages, setMessages] = useState<AbstractIntlMessages | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    // Initial load from localStorage or User data
+    // Initial load from localStorage
     useEffect(() => {
         const savedLocale = localStorage.getItem('NEXT_LOCALE') as Locale;
-        const initialLocale = user?.language || savedLocale || 'en';
-        setLocaleState(initialLocale as Locale);
+        if (savedLocale) {
+            setLocaleState(savedLocale);
+        }
+    }, []);
+
+    // Sync with User data when it arrives
+    useEffect(() => {
+        if (user?.language && user.language !== locale) {
+            setLocaleState(user.language as Locale);
+        }
     }, [user?.language]);
 
     // Load messages when locale changes

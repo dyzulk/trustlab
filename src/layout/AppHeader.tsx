@@ -1,6 +1,7 @@
 "use client";
 import { ThemeToggleButton } from "@/components/common/ThemeToggleButton";
 import NotificationDropdown from "@/components/header/NotificationDropdown";
+import { LanguageSwitcher } from "@/components/header/LanguageSwitcher";
 import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
 import { useTranslations } from "next-intl";
@@ -170,6 +171,10 @@ const AppHeader: React.FC = () => {
             {/* <!-- Dark Mode Toggler --> */}
             <ThemeToggleButton />
             {/* <!-- Dark Mode Toggler --> */}
+
+            {/* <!-- Language Switcher --> */}
+            <LanguageSwitcher />
+            {/* <!-- Language Switcher --> */}
 
            <NotificationDropdown /> 
             {/* <!-- Notification Menu Area --> */}
