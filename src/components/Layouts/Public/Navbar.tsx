@@ -120,6 +120,7 @@ export default function Navbar() {
                              <Link href="/signin" className="text-gray-600 dark:text-gray-400 hover:text-brand-500 dark:hover:text-brand-400 transition-colors">{t("signin")}</Link>
                          )}
                         
+                        <LanguageSwitcher />
                         <ThemeToggle />
 
                         {user ? (
@@ -141,9 +142,15 @@ export default function Navbar() {
                         <LanguageSwitcher />
                         <ThemeToggle />
                         <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 text-gray-600 dark:text-gray-400">
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
-                            </svg>
+                            {mobileOpen ? (
+                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            ) : (
+                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7" />
+                                </svg>
+                            )}
                         </button>
                     </div>
                 </div>
@@ -172,8 +179,8 @@ export default function Navbar() {
                         <div className="space-y-4 border-b border-gray-100 dark:border-gray-800 pb-4">
                             <div className="text-lg font-bold text-gray-900 dark:text-white">{t("tools")}</div>
                             <div className="pl-4 space-y-3">
-                                <Link href="/tools/chat-id" className="block text-gray-600 dark:text-gray-400 font-medium">{t("chat_id_finder")}</Link>
-                                <Link href="/tools/key-generator" className="block text-gray-600 dark:text-gray-400 font-medium">{t("app_key_generator")}</Link>
+                                <Link href="/tools/chat-id" onClick={() => setMobileOpen(false)} className="block text-gray-600 dark:text-gray-400 font-medium">{t("chat_id_finder")}</Link>
+                                <Link href="/tools/key-generator" onClick={() => setMobileOpen(false)} className="block text-gray-600 dark:text-gray-400 font-medium">{t("app_key_generator")}</Link>
                             </div>
                         </div>
 

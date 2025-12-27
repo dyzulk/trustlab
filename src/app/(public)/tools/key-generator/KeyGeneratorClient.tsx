@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 
 export default function KeyGeneratorClient() {
     const [generatedKey, setGeneratedKey] = useState("");
     const [copying, setCopying] = useState(false);
+    const t = useTranslations("Public");
 
     const generate = () => {
         const array = new Uint8Array(32);
@@ -32,21 +34,21 @@ export default function KeyGeneratorClient() {
                         🔐 Security Utility
                     </div>
                     <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
-                        Key Generator
+                        {t("key_gen_title")}
                     </h1>
                     <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-                        Generate a production-ready 32-byte <code>APP_KEY</code> for your Laravel application securely in your browser.
+                        {t("key_gen_subtitle")}
                     </p>
                 </div>
 
                 <div className="bg-white px-8 py-10 shadow-2xl rounded-[2.5rem] dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 backdrop-blur-sm">
                     <div className="space-y-8">
                         <div>
-                            <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 text-center">Your Generated Security Key</label>
+                            <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-4 text-center">{t("generated_key_label")}</label>
                             <div className="relative group">
                                 <div className="flex items-center gap-2 p-1 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-2xl">
                                     <div className="flex-1 p-5 text-sm font-mono text-gray-900 dark:text-white break-all text-center min-h-[60px] flex items-center justify-center">
-                                        {generatedKey || 'Generating...'}
+                                        {generatedKey || t("loading")}
                                     </div>
                                     {generatedKey && (
                                         <button 
@@ -76,32 +78,32 @@ export default function KeyGeneratorClient() {
                                 onClick={generate}
                                 className="flex-1 rounded-2xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 text-sm font-bold shadow-lg transition-all hover:-translate-y-0.5 active:scale-95"
                             >
-                                Generate New Key
+                                {t("generate_new")}
                             </button>
                             <button 
                                 onClick={copy}
                                 className="flex-1 rounded-2xl bg-brand-500 text-white px-6 py-4 text-sm font-bold shadow-lg shadow-brand-500/20 transition-all hover:-translate-y-0.5 active:scale-95"
                             >
-                                Copy to .env
+                                {t("copy_env")}
                             </button>
                         </div>
 
                         <div className="p-6 bg-gray-50 dark:bg-gray-800/50 rounded-3xl border border-gray-100 dark:border-gray-700">
                             <h4 className="text-xs font-bold text-gray-800 dark:text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                                 Quick Guide
+                                 {t("quick_guide")}
                             </h4>
                             <ul className="text-[11px] text-gray-500 dark:text-gray-400 space-y-2 font-medium">
                                 <li className="flex gap-2">
                                     <span className="text-brand-500 font-bold">1.</span>
-                                    <div>Copy the generated key above.</div>
+                                    <div>{t("guide_1")}</div>
                                 </li>
                                 <li className="flex gap-2">
                                     <span className="text-brand-500 font-bold">2.</span>
-                                    <div>Open your <code>.env</code> file in your Laravel project root.</div>
+                                    <div>{t("guide_2")}</div>
                                 </li>
                                 <li className="flex gap-2">
                                     <span className="text-brand-500 font-bold">3.</span>
-                                    <div>Update the <code>APP_KEY=</code> variable with this key.</div>
+                                    <div>{t("guide_3")}</div>
                                 </li>
                             </ul>
                         </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 interface Chat {
   id: number;
@@ -16,6 +17,7 @@ export default function ChatIdClient() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const t = useTranslations("Public");
 
   // Load darkMode preference if needed, but for now relying on system/tailwind
   
@@ -84,17 +86,17 @@ export default function ChatIdClient() {
             💬 Telegram Utility
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4">
-            Chat ID Finder
+            {t("chat_id_title")}
           </h1>
           <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
-            Enter your <strong>Bot Token</strong> from @BotFather to see recent activity and find your <code>CHAT_ID</code>.
+            {t("chat_id_subtitle")}
           </p>
         </div>
 
         <div className="bg-white px-8 py-10 shadow-2xl rounded-[2.5rem] dark:bg-white/[0.03] border border-gray-100 dark:border-gray-800 backdrop-blur-sm">
           <div className="space-y-6">
             <div>
-              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Telegram Bot Token</label>
+              <label className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">{t("bot_token_label")}</label>
               <div className="relative">
                 <input
                   type="text"
@@ -114,8 +116,8 @@ export default function ChatIdClient() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                  ) : (
-                    "Get Updates"
+                   ) : (
+                    t("get_updates")
                   )}
                 </button>
               </div>
@@ -132,13 +134,13 @@ export default function ChatIdClient() {
 
             {chats.length > 0 && (
               <div className="space-y-4">
-                <h3 className="text-sm font-bold text-gray-800 dark:text-white">Detected Chat IDs:</h3>
+                <h3 className="text-sm font-bold text-gray-800 dark:text-white">{t("detected_chats")}</h3>
                 <div className="overflow-hidden rounded-xl border border-gray-100 dark:border-gray-700">
                   <table className="w-full text-left text-sm">
                     <thead className="bg-gray-50 dark:bg-gray-900/50">
                       <tr>
-                        <th className="px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">Name</th>
-                        <th className="px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">ID</th>
+                        <th className="px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">{t("chat_name")}</th>
+                        <th className="px-4 py-3 font-semibold text-gray-600 dark:text-gray-400">{t("chat_id")}</th>
                         <th className="px-4 py-3 text-right"></th>
                       </tr>
                     </thead>
@@ -176,17 +178,17 @@ export default function ChatIdClient() {
             )}
 
             <div className="pt-6 border-t border-gray-100 dark:border-gray-700">
-              <h3 className="text-xs font-bold text-gray-800 dark:text-white mb-2 uppercase tracking-tight">Instructions:</h3>
+              <h3 className="text-xs font-bold text-gray-800 dark:text-white mb-2 uppercase tracking-tight">{t("instructions")}</h3>
               <ol className="text-xs text-gray-500 dark:text-gray-400 space-y-2 list-decimal ml-4">
-                <li>Send a random message (e.g., "Hello") to your Telegram Bot.</li>
-                <li>Paste your <strong>Bot Token</strong> above and click <strong>Get Updates</strong>.</li>
-                <li>Your <code>CHAT_ID</code> will appear in the table. Copy it for your configuration.</li>
+                <li>{t("instruction_1")}</li>
+                <li>{t("instruction_2")}</li>
+                <li>{t("instruction_3")}</li>
               </ol>
             </div>
             
              <div className="pt-4 text-center">
                  <Link href="/" className="text-xs font-bold text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
-                     ← Return Home
+                     ← {t("return_home")}
                  </Link>
              </div>
           </div>

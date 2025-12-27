@@ -3,6 +3,7 @@
 import { useState } from "react";
 import axios from "@/lib/axios";
 import Alert from "@/components/ui/alert/Alert";
+import { useTranslations } from "next-intl";
 
 export default function ContactClient() {
     const [alertState, setAlertState] = useState<{
@@ -12,6 +13,7 @@ export default function ContactClient() {
     } | null>(null);
     const [errors, setErrors] = useState<any>({});
     const [loading, setLoading] = useState(false);
+    const t = useTranslations("Public");
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -34,8 +36,8 @@ export default function ContactClient() {
             await axios.post("/api/public/inquiries", formData);
             setAlertState({
                 variant: 'success',
-                title: 'Message Sent Successfully',
-                message: 'Your message has been received. We will get back to you soon!',
+                title: t('success_title'),
+                message: t('success_message'),
             });
             setFormData({
                 name: "",
@@ -50,8 +52,8 @@ export default function ContactClient() {
             } else {
                 setAlertState({
                     variant: 'error',
-                    title: 'Submission Failed',
-                    message: 'Something went wrong. Please try again.',
+                    title: t('fail_title'),
+                    message: t('fail_message'),
                 });
             }
         } finally {
@@ -64,10 +66,10 @@ export default function ContactClient() {
             <div className="max-w-xl mx-auto space-y-8">
                 <div className="text-center">
                     <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">
-                        Contact Our Team
+                        {t("contact_title")}
                     </h1>
                     <p className="text-gray-600 dark:text-gray-400">
-                        Have a question or need assistance? We're here to help.
+                        {t("contact_subtitle")}
                     </p>
                 </div>
 
@@ -83,7 +85,7 @@ export default function ContactClient() {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
-                                <label htmlFor="name" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Name</label>
+                                <label htmlFor="name" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">{t("name_label")}</label>
                                 <input 
                                     type="text" 
                                     name="name" 
@@ -96,7 +98,7 @@ export default function ContactClient() {
                                 {errors.name && <p className="mt-1 text-[10px] text-red-500 font-bold uppercase">{errors.name[0]}</p>}
                             </div>
                             <div>
-                                <label htmlFor="email" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Email Address</label>
+                                <label htmlFor="email" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">{t("email_label")}</label>
                                 <input 
                                     type="email" 
                                     name="email" 
@@ -111,7 +113,7 @@ export default function ContactClient() {
                         </div>
 
                         <div>
-                            <label htmlFor="category" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Category</label>
+                            <label htmlFor="category" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">{t("category_label")}</label>
                             <select 
                                 name="category" 
                                 id="category" 
@@ -120,15 +122,15 @@ export default function ContactClient() {
                                 onChange={handleChange}
                                 className="w-full rounded-2xl border-gray-200 bg-gray-50/50 px-5 py-4 text-sm text-gray-900 transition focus:ring-brand-500 focus:border-brand-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white appearance-none"
                             >
-                                <option value="Technical Support">Technical Support</option>
-                                <option value="Legal Inquiry">Legal Inquiry</option>
-                                <option value="Partnership">Partnership</option>
-                                <option value="Other">Other</option>
+                                <option value="Technical Support">{t("technical_support")}</option>
+                                <option value="Legal Inquiry">{t("legal_inquiry")}</option>
+                                <option value="Partnership">{t("partnership")}</option>
+                                <option value="Other">{t("other")}</option>
                             </select>
                         </div>
 
                         <div>
-                            <label htmlFor="subject" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Subject</label>
+                            <label htmlFor="subject" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">{t("subject_label")}</label>
                             <input 
                                 type="text" 
                                 name="subject" 
@@ -142,7 +144,7 @@ export default function ContactClient() {
                         </div>
 
                         <div>
-                            <label htmlFor="message" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">Message</label>
+                            <label htmlFor="message" className="block text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-2">{t("message_label")}</label>
                             <textarea 
                                 name="message" 
                                 id="message" 
@@ -161,7 +163,7 @@ export default function ContactClient() {
                                 disabled={loading}
                                 className="flex w-full justify-center rounded-2xl bg-brand-500 px-4 py-5 text-sm font-bold text-white shadow-xl shadow-brand-500/30 hover:bg-brand-600 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all active:scale-[0.98] disabled:opacity-75 disabled:cursor-not-allowed"
                             >
-                                {loading ? "Sending..." : "Send Message"}
+                                {loading ? t("sending") : t("send_message")}
                             </button>
                         </div>
                     </form>
