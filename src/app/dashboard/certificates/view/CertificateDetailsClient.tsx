@@ -5,21 +5,21 @@ import { useSearchParams } from "next/navigation";
 import useSWR from "swr";
 import axios from "@/lib/axios";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import CertificateDetails from "@/components/certificates/CertificateDetails";
+import PageLoader from "@/components/ui/PageLoader";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+import CertificateDetails from "@/components/certificates/CertificateDetails";
 
 export default function CertificateDetailsClient() {
   const searchParams = useSearchParams();
-  const uuid = searchParams.get('uuid');
-  const { data, error, isLoading } = useSWR(`/api/certificates/${uuid}`, fetcher);
+  const idOrUuid = searchParams.get("uuid") || searchParams.get("id");
+
+  const { data, error, isLoading } = useSWR(
+    idOrUuid ? `/api/certificates/${idOrUuid}` : null,
+    (url) => axios.get(url).then((res) => res.data)
+  );
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <PageLoader text="Loading certificate details..." />;
   }
 
   if (error || !data?.data) {

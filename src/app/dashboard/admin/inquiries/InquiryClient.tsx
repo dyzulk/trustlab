@@ -10,6 +10,7 @@ import { useToast } from "@/context/ToastContext";
 import Button from "@/components/ui/button/Button";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import { Eye, Trash, Mail, Calendar, Search, MessageSquare, Send, X } from "lucide-react";
+import PageLoader from "@/components/ui/PageLoader";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -183,7 +184,7 @@ export default function InquiryClient() {
           
           {(isLoading || isDeleting) && (
             <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 flex items-center justify-center z-10 backdrop-blur-sm rounded-2xl">
-              <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+              <PageLoader text="Processing..." className="h-full" />
             </div>
           )}
         </ComponentCard>
@@ -202,7 +203,7 @@ export default function InquiryClient() {
 
       {/* Inquiry View / Reply Modal */}
       {selectedInquiry && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" onClick={() => !isReplying && setSelectedInquiry(null)}></div>
           <div className="relative bg-white dark:bg-gray-900 w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">

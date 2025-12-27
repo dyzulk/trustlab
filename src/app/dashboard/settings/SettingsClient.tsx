@@ -30,20 +30,30 @@ import {
   Key,
   ChevronRight,
   LogOut,
-  DoorOpen
+  DoorOpen,
+  Sun,
+  Moon,
+  Laptop
 } from "lucide-react";
 
+import { useTheme } from "@/context/ThemeContext";
+
 import Switch from "@/components/form/switch/Switch";
+import { useRouter, useSearchParams } from "next/navigation";
+import PageLoader from "@/components/ui/PageLoader";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function SettingsClient() {
-  const { data: user } = useSWR("/api/user", fetcher);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { data: user, mutate: mutateUser } = useSWR("/api/user", fetcher);
   const { data: loginHistory, isLoading: historyLoading } = useSWR("/api/profile/login-history", fetcher);
   const { data: sessions, isLoading: sessionsLoading } = useSWR("/api/profile/sessions", fetcher);
   const { data: apiKeys } = useSWR("/api/api-keys", fetcher);
   
   const { addToast } = useToast();
+  const { theme: currentTheme, setTheme } = useTheme();
   const { isOpen, openModal, closeModal } = useModal();
   
   const [isSavingPassword, setIsSavingPassword] = useState(false);
@@ -54,13 +64,131 @@ export default function SettingsClient() {
     password_confirmation: "",
   });
 
-  const savePreference = async (key: string, value: boolean) => {
+  // 2FA State
+  const [twoFactorMode, setTwoFactorMode] = useState<'enable' | 'disable' | 'recovery' | null>(null);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [setupSecret, setSetupSecret] = useState<string | null>(null);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [recoveryCodes, setRecoveryCodes] = useState<string[]>([]);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isProcessing2FA, setIsProcessing2FA] = useState(false);
+
+  const enable2FA = async () => {
+      try {
+          setIsProcessing2FA(true);
+          const { data } = await axios.post('/api/auth/2fa/enable');
+          setQrCode(data.qr_code);
+          setSetupSecret(data.secret);
+          setTwoFactorMode('enable');
+      } catch (error) {
+          addToast("Failed to initiate 2FA setup", "error");
+      } finally {
+          setIsProcessing2FA(false);
+      }
+  };
+
+  const confirmEnable2FA = async () => {
+      try {
+          setIsProcessing2FA(true);
+          const { data } = await axios.post('/api/auth/2fa/confirm', { code: verificationCode });
+          addToast("2FA enabled successfully!", "success");
+          setRecoveryCodes(data.recovery_codes);
+          setTwoFactorMode('recovery'); // Show recovery codes immediately
+          mutateUser();
+      } catch (error: any) {
+          addToast(error.response?.data?.message || "Invalid code", "error");
+      } finally {
+          setIsProcessing2FA(false);
+      }
+  };
+
+  const disable2FA = async () => {
+      try {
+          setIsProcessing2FA(true);
+          await axios.delete('/api/auth/2fa/disable', { data: { password: confirmPassword } });
+          addToast("2FA disabled successfully", "success");
+          setTwoFactorMode(null);
+          setConfirmPassword("");
+          mutateUser();
+      } catch (error: any) {
+          addToast(error.response?.data?.message || "Failed to disable 2FA", "error");
+      } finally {
+          setIsProcessing2FA(false);
+      }
+  };
+
+  const showRecoveryCodes = async () => {
+      try {
+          const { data } = await axios.get('/api/auth/2fa/recovery-codes');
+          setRecoveryCodes(data.recovery_codes);
+          setTwoFactorMode('recovery');
+      } catch (error) {
+          addToast("Failed to fetch recovery codes", "error");
+      }
+  };
+
+  const close2FAModal = () => {
+      setTwoFactorMode(null);
+      setQrCode(null);
+      setVerificationCode("");
+      setRecoveryCodes([]);
+      setConfirmPassword("");
+  };
+  
+  // Handle Success/Error Alerts from URL (e.g. from OAuth Callback)
+  React.useEffect(() => {
+    const success = searchParams.get("success");
+    const error = searchParams.get("error");
+
+    if (success) {
+        if (success === 'account_connected') addToast("Account connected successfully", "success");
+        // Clear params
+        router.replace("/dashboard/settings");
+    }
+
+    if (error) {
+        if (error === 'already_connected') addToast("This social account is already connected to you.", "warning");
+        if (error === 'connected_to_other_account') addToast("This social account is already connected to another user.", "error");
+        if (error === 'login_required_to_connect') addToast("You must be logged in to connect an account.", "error");
+        // Clear params
+        router.replace("/dashboard/settings");
+    }
+  }, [searchParams, router, addToast]);
+
+  const connectAccount = async (provider: string) => {
+      try {
+          addToast("Initiating connection...", "info");
+          // Get secure link token to identify user during redirect
+          const { data } = await axios.get('/api/auth/link-token');
+          // Redirect to backend auth endpoint with context and token
+          window.location.href = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/${provider}/redirect?context=connect&link_token=${data.token}`;
+      } catch (error) {
+          addToast("Failed to initiate connection. Please try again.", "error");
+      }
+  };
+
+  const disconnectAccount = async (provider: string) => {
+      // confirm disconnect?
+      try {
+        addToast("Disconnecting...", "info");
+        await axios.delete(`/api/auth/social/${provider}`);
+        addToast("Account disconnected successfully", "success");
+        mutateUser(); // Refresh user state
+      } catch (error: any) {
+        addToast(error.response?.data?.message || "Failed to disconnect account", "error");
+      }
+  };
+
+  const savePreference = async (key: string, value: any) => {
     try {
         // Optimistic update could go here, but for simplicity we rely on SWR revalidation or just wait
         await axios.patch('/api/profile', {
             [key]: value
         });
-        mutate("/api/user"); // Refresh user data to confirm sync
+
+        if (key === 'theme') setTheme(value);
+
+        mutateUser(); // Refresh user data to confirm sync
         addToast("Settings updated", "success");
     } catch (err) {
         addToast("Failed to update settings", "error");
@@ -176,7 +304,7 @@ export default function SettingsClient() {
                 API Keys Summary
               </h4>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                You have <span className="font-semibold text-gray-800 dark:text-white/90">{apiKeys?.length || 0}</span> active API keys.
+                You have <span className="font-semibold text-gray-800 dark:text-white/90">{apiKeys?.data?.filter((k: any) => k.is_active).length || 0}</span> active API keys.
               </p>
             </div>
           </div>
@@ -235,7 +363,7 @@ export default function SettingsClient() {
           Active Sessions
         </h4>
         {sessionsLoading ? (
-          <div className="py-10 text-center text-gray-500">Loading sessions...</div>
+           <PageLoader text="Loading sessions..." className="py-10" />
         ) : sessions?.length > 0 ? (
           <div className="space-y-4">
             {sessions.map((session: any) => (
@@ -291,7 +419,7 @@ export default function SettingsClient() {
         </div>
 
         {historyLoading ? (
-          <div className="py-10 text-center text-gray-500">Loading activity...</div>
+           <PageLoader text="Loading activity..." className="py-10" />
         ) : loginHistory?.length > 0 ? (
           <div className="overflow-x-auto border border-gray-100 rounded-xl dark:border-gray-800">
             <table className="min-w-[600px] w-full text-left">
@@ -353,18 +481,37 @@ export default function SettingsClient() {
 
       {/* Advanced Security & UI Placeholders */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* 2FA Placeholder */}
+        {/* 2FA Section */}
         <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
           <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
               <Lock className="w-5 h-5" />
               <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">Two-Factor Auth (2FA)</h4>
             </div>
-            <Badge color="primary" size="sm" variant="light">Coming Soon</Badge>
+            {user?.two_factor_confirmed_at ? (
+                 <Badge color="success" size="sm" variant="light">Enabled</Badge>
+            ) : (
+                 <Badge color="warning" size="sm" variant="light">Disabled</Badge>
+            )}
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Secure your account with an authentication app like Google Authenticator.</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Secure your account with an authentication app like Google Authenticator.
+          </p>
           <div className="mt-4">
-            <Button variant="outline" size="sm" disabled className="w-full">Setup 2FA</Button>
+             {user?.two_factor_confirmed_at ? (
+                <div className="flex gap-3">
+                    <Button variant="danger" size="sm" className="w-full" onClick={() => setTwoFactorMode('disable')}>
+                        Disable 2FA
+                    </Button>
+                     <Button variant="outline" size="sm" className="w-full" onClick={showRecoveryCodes}>
+                        View Recovery Codes
+                    </Button>
+                </div>
+             ) : (
+                <Button variant="outline" size="sm" className="w-full" onClick={enable2FA}>
+                    Setup 2FA
+                </Button>
+             )}
           </div>
         </div>
 
@@ -414,21 +561,59 @@ export default function SettingsClient() {
           )}
         </div>
 
-        {/* Display & Language Placeholder */}
+        {/* Appearance Settings */}
         <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:border-gray-800 dark:bg-white/[0.03] lg:p-6">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
               <Palette className="w-5 h-5" />
               <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">Appearance</h4>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-             <div className="p-3 border border-gray-100 rounded-xl dark:border-gray-800 flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                <Globe className="w-4 h-4" /> <span className="text-xs">System Theme</span>
-             </div>
-             <div className="p-3 border border-gray-100 rounded-xl dark:border-gray-800 flex items-center gap-2 text-gray-500 dark:text-gray-400">
-                <Languages className="w-4 h-4" /> <span className="text-xs">English (US)</span>
-             </div>
+          
+          <div className="space-y-6">
+            <div>
+              <Label className="mb-3 block text-sm font-medium">Theme Preference</Label>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { id: 'light', label: 'Light', icon: <Sun className="w-4 h-4" /> },
+                  { id: 'dark', label: 'Dark', icon: <Moon className="w-4 h-4" /> },
+                  { id: 'system', label: 'System', icon: <Laptop className="w-4 h-4" /> },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    onClick={() => savePreference('theme', t.id as any)}
+                    className={`flex flex-col items-center justify-center p-3 border rounded-xl transition-all gap-2 ${
+                      user?.theme === t.id
+                        ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400'
+                        : 'border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:border-brand-200'
+                    }`}
+                  >
+                    {t.icon}
+                    <span className="text-xs font-medium">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <Label className="mb-3 block text-sm font-medium">Language</Label>
+              <div className="relative">
+                <select 
+                  value={user?.language || 'en'}
+                  onChange={(e) => savePreference('language', e.target.value)}
+                  className="w-full bg-transparent border border-gray-100 dark:border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-gray-300 focus:border-brand-500 outline-none appearance-none transition-all"
+                >
+                  <option value="en">English (US)</option>
+                  <option value="id">Bahasa Indonesia</option>
+                </select>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                  <ChevronRight className="w-4 h-4 rotate-90" />
+                </div>
+              </div>
+              <p className="mt-2 text-xs text-gray-500 flex items-center gap-1">
+                <Globe className="w-3 h-3" /> More languages coming soon
+              </p>
+            </div>
           </div>
         </div>
 
@@ -446,7 +631,7 @@ export default function SettingsClient() {
           </Button>
         </div>
 
-        {/* Landing Page Placeholder */}
+        {/* Landing Page Selection */}
         <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:border-gray-800 dark:bg-white/[0.03] lg:p-6 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
              <div className="flex items-center gap-3 text-gray-500 dark:text-gray-400">
@@ -454,9 +639,31 @@ export default function SettingsClient() {
                 <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90">Default Landing Page</h4>
              </div>
           </div>
-          <div className="flex items-center justify-between p-3 border border-gray-100 rounded-xl dark:border-gray-800 text-gray-500 dark:text-gray-400">
-             <span className="text-sm">Current: Dashboard</span>
-             <ChevronRight className="w-4 h-4" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                  { id: '/dashboard', label: 'Dashboard Overview', icon: <Monitor className="w-4 h-4" /> },
+                  { id: '/dashboard/support', label: 'Support Tickets', icon: <Smartphone className="w-4 h-4" /> },
+                  { id: '/dashboard/certificates', label: 'Certificates', icon: <ShieldCheck className="w-4 h-4" /> },
+                  { id: '/dashboard/api-keys', label: 'API Keys', icon: <Key className="w-4 h-4" /> },
+              ].map((option) => (
+                  <button
+                      key={option.id}
+                      onClick={() => savePreference('default_landing_page', option.id)}
+                      className={`flex items-center justify-between p-4 border rounded-xl transition-all ${
+                          user?.default_landing_page === option.id
+                              ? 'border-brand-500 bg-brand-50/50 dark:bg-brand-500/10 text-brand-600 dark:text-brand-400 font-bold'
+                              : 'border-gray-100 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:border-brand-200'
+                      }`}
+                  >
+                      <div className="flex items-center gap-2">
+                          {option.icon}
+                          <span className="text-sm">{option.label}</span>
+                      </div>
+                      {user?.default_landing_page === option.id && (
+                          <div className="w-2 h-2 rounded-full bg-brand-500" />
+                      )}
+                  </button>
+              ))}
           </div>
         </div>
       </div>
@@ -481,7 +688,7 @@ export default function SettingsClient() {
               <div>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">Google Account</p>
                 <div className="mt-1">
-                  {user?.google_id ? (
+                  {user?.social_accounts?.some((a: any) => a.provider === 'google') ? (
                     <Badge color="success" size="sm" variant="light">Connected</Badge>
                   ) : (
                     <Badge color="light" size="sm" variant="light">Not connected</Badge>
@@ -489,9 +696,15 @@ export default function SettingsClient() {
                 </div>
               </div>
             </div>
-            <Button variant="outline" size="sm" disabled>
-              {user?.google_id ? 'Disconnect' : 'Connect'}
-            </Button>
+            {user?.social_accounts?.some((a: any) => a.provider === 'google') ? (
+                <Button variant="outline" size="sm" onClick={() => disconnectAccount('google')}>
+                  Disconnect
+                </Button>
+            ) : (
+                <Button variant="outline" size="sm" onClick={() => connectAccount('google')}>
+                  Connect
+                </Button>
+            )}
           </div>
 
           <div className="flex items-center justify-between p-4 border border-gray-100 rounded-xl dark:border-gray-800">
@@ -504,7 +717,7 @@ export default function SettingsClient() {
               <div>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">GitHub Account</p>
                 <div className="mt-1">
-                  {user?.github_id ? (
+                  {user?.social_accounts?.some((a: any) => a.provider === 'github') ? (
                     <Badge color="success" size="sm" variant="light">Connected</Badge>
                   ) : (
                     <Badge color="light" size="sm" variant="light">Not connected</Badge>
@@ -512,9 +725,15 @@ export default function SettingsClient() {
                 </div>
               </div>
             </div>
-            <Button variant="outline" size="sm" disabled>
-              {user?.github_id ? 'Disconnect' : 'Connect'}
-            </Button>
+            {user?.social_accounts?.some((a: any) => a.provider === 'github') ? (
+                <Button variant="outline" size="sm" onClick={() => disconnectAccount('github')}>
+                  Disconnect
+                </Button>
+            ) : (
+                <Button variant="outline" size="sm" onClick={() => connectAccount('github')}>
+                  Connect
+                </Button>
+            )}
           </div>
         </div>
       </div>
@@ -561,6 +780,100 @@ export default function SettingsClient() {
                 </Button>
               </div>
            </div>
+        </div>
+      </Modal>
+
+      {/* 2FA Modals */}
+      <Modal isOpen={twoFactorMode !== null} onClose={close2FAModal} className="max-w-[450px] m-4">
+        <div className="p-6 sm:p-8">
+            {twoFactorMode === 'enable' && (
+                <div className="flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-12 h-12 mb-4 bg-blue-50 rounded-full dark:bg-blue-500/10">
+                        <Smartphone className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-white/90">Setup Two-Factor Auth</h3>
+                    <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
+                        Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.).
+                    </p>
+                    
+                    {qrCode && (
+                        <div className="p-4 bg-white rounded-xl border border-gray-200 mb-6" dangerouslySetInnerHTML={{ __html: qrCode }} />
+                    )}
+
+                    <div className="w-full mb-6">
+                         <Label className="mb-2 text-left block">Enter 6-digit Code</Label>
+                         <Input 
+                            value={verificationCode}
+                            onChange={(e) => setVerificationCode(e.target.value)}
+                            placeholder="123456"
+                            className="text-center tracking-widest text-lg"
+                            maxLength={6}
+                         />
+                    </div>
+
+                    <div className="flex w-full gap-3">
+                        <Button variant="outline" className="w-full" onClick={close2FAModal}>Cancel</Button>
+                        <Button className="w-full" onClick={confirmEnable2FA} loading={isProcessing2FA} disabled={verificationCode.length !== 6}>
+                            Verify & Enable
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+            {twoFactorMode === 'recovery' && (
+                <div className="flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-12 h-12 mb-4 bg-green-50 rounded-full dark:bg-green-500/10">
+                        <ShieldCheck className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-white/90">Recovery Codes</h3>
+                    <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
+                        Store these codes in a secure place. You can use them to access your account if you lose your authenticator device.
+                    </p>
+                    
+                    <div className="w-full grid grid-cols-2 gap-3 mb-8 bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                        {recoveryCodes.map((code, i) => (
+                            <div key={i} className="font-mono text-sm text-gray-800 dark:text-gray-300 bg-white dark:bg-gray-900 px-2 py-1 rounded border border-gray-200 dark:border-gray-700">
+                                {code}
+                            </div>
+                        ))}
+                    </div>
+
+                    <Button className="w-full" onClick={close2FAModal}>
+                        I have saved these codes
+                    </Button>
+                </div>
+            )}
+
+            {twoFactorMode === 'disable' && (
+                <div className="flex flex-col items-center text-center">
+                    <div className="flex items-center justify-center w-16 h-16 mb-4 bg-red-50 rounded-full dark:bg-red-500/10">
+                        <Lock className="w-8 h-8 text-red-600 dark:text-red-500" />
+                    </div>
+                    <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-white/90">Disable 2FA?</h3>
+                    <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
+                        This will reduce your account security. Are you sure you want to disable Two-Factor Authentication?
+                    </p>
+                    
+                     <div className="w-full mb-6 text-left">
+                         <Label className="mb-2 block">Confirm Password</Label>
+                         <Input 
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Enter your password to confirm"
+                         />
+                    </div>
+
+                    <div className="flex flex-col w-full gap-3 sm:flex-row sm:justify-center">
+                        <Button variant="outline" className="w-full sm:w-auto" onClick={close2FAModal}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" className="w-full sm:w-auto" onClick={disable2FA} loading={isProcessing2FA} disabled={!confirmPassword}>
+                            Yes, Disable 2FA
+                        </Button>
+                    </div>
+                </div>
+            )}
         </div>
       </Modal>
     </div>

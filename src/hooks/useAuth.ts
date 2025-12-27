@@ -34,12 +34,16 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: { middleware?: 
         await csrf();
         setErrors([]);
         setStatus && setStatus(null);
-        axios
+        return axios
             .post('/login', props)
-            .then(() => mutate())
+            .then(response => {
+                mutate();
+                return response;
+            })
             .catch(error => {
                 if (error.response.status !== 422) throw error;
                 setErrors(error.response.data.errors);
+                throw error;
             });
     };
 
@@ -52,7 +56,7 @@ export const useAuth = ({ middleware, redirectIfAuthenticated }: { middleware?: 
 
     useEffect(() => {
         if (middleware === 'guest' && redirectIfAuthenticated && user)
-            router.push(redirectIfAuthenticated);
+            router.push(user.default_landing_page || redirectIfAuthenticated);
         // if (window.location.pathname === '/verify-email' && user?.email_verified_at)
         //     router.push(redirectIfAuthenticated);
         if (middleware === 'auth' && error) logout();

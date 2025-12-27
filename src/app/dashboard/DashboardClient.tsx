@@ -1,6 +1,8 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import useSWR from "swr";
+import { useRouter } from "next/navigation";
 import axios from "@/lib/axios";
 import { 
   BarChart3, 
@@ -11,9 +13,33 @@ import {
   Clock, 
   Wifi, 
   WifiOff, 
-  Server
+  Server,
+  CheckCircle, 
+  MessageSquare,
+  Download,
+  LogIn,
+  UserPlus,
+  Trash2,
+  FilePlus
 } from "lucide-react";
 import echo from "@/lib/echo";
+import PageLoader from "@/components/ui/PageLoader";
+import Tooltip from "@/components/ui/Tooltip";
+
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+
+const getActivityIcon = (action: string) => {
+  switch (action) {
+    case 'login': return <LogIn className="w-4 h-4 text-blue-500" />;
+    case 'register': return <UserPlus className="w-4 h-4 text-green-500" />;
+    case 'issue_cert': return <FilePlus className="w-4 h-4 text-brand-500" />;
+    case 'delete_cert': return <Trash2 className="w-4 h-4 text-red-500" />;
+    case 'create_ticket': return <MessageSquare className="w-4 h-4 text-purple-500" />;
+    case 'reply_ticket': return <MessageSquare className="w-4 h-4 text-indigo-500" />;
+    case 'close_ticket': return <CheckCircle className="w-4 h-4 text-gray-500" />;
+    default: return <Activity className="w-4 h-4 text-gray-400" />;
+  }
+};
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -21,6 +47,16 @@ export default function DashboardClient() {
   const { data, error, isLoading, mutate } = useSWR("/api/dashboard", fetcher, {
     refreshInterval: 0, // Disable auto polling, rely on WS or manual refresh
   });
+
+  const router = useRouter();
+  const { data: userData } = useSWR("/api/user", fetcher);
+  const user = userData;
+
+  useEffect(() => {
+    if (user?.default_landing_page && user.default_landing_page !== '/dashboard') {
+        router.push(user.default_landing_page);
+    }
+  }, [user, router]);
   
   const [wsStatus, setWsStatus] = useState<"connected" | "disconnected" | "connecting">("connecting");
   const [apiLatency, setApiLatency] = useState<number | null>(null);
@@ -28,6 +64,7 @@ export default function DashboardClient() {
 
   const stats = data?.data?.stats;
   const activity = data?.data?.recent_activity;
+  const chartData = data?.data?.chart_data;
 
   // Realtime & Latency Logic
   useEffect(() => {
@@ -78,8 +115,55 @@ export default function DashboardClient() {
   }, []);
 
 
-  if (isLoading) return <div className="p-6">Loading Dashboard...</div>;
+  if (isLoading) return <PageLoader text="Loading Dashboard..." />;
   if (error) return <div className="p-6 text-red-500">Error loading dashboard data.</div>;
+
+  // Chart Configuration
+  const chartOptions: any = {
+    colors: ["#465fff"],
+    chart: {
+      fontFamily: "inherit",
+      type: "area",
+      height: 310,
+      toolbar: { show: false },
+    },
+    stroke: { curve: "smooth", width: 2 },
+    fill: {
+      type: "gradient",
+      gradient: {
+        shadeIntensity: 1,
+        opacityFrom: 0.45,
+        opacityTo: 0.05,
+        stops: [0, 80, 100],
+      },
+    },
+    dataLabels: { enabled: false },
+    grid: {
+      borderColor: "#e5e7eb",
+      strokeDashArray: 3,
+      xaxis: { lines: { show: false } },
+    },
+    xaxis: {
+      categories: chartData?.map((d: any) => d.day) || [],
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+    },
+    yaxis: {
+        labels: {
+            formatter: (val: number) => Math.floor(val)
+        }
+    },
+    tooltip: {
+      x: { format: "dd/MM/yy HH:mm" },
+    },
+  };
+
+  const chartSeries = [
+    {
+      name: "Certificates Issued",
+      data: chartData?.map((d: any) => d.count) || [],
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -90,19 +174,23 @@ export default function DashboardClient() {
         </div>
         <div className="flex items-center gap-3">
              {/* System Health Indicators */}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border ${
-                wsStatus === 'connected' 
-                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
-                : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
-            }`}>
-                {wsStatus === 'connected' ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
-                <span>WS: {wsStatus === 'connected' ? 'Live' : 'Offline'}</span>
-            </div>
+            <Tooltip content="Real-time WebSockets connection for live updates" position="top-end">
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border ${
+                  wsStatus === 'connected' 
+                  ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
+                  : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
+              }`}>
+                  {wsStatus === 'connected' ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
+                  <span>WS: {wsStatus === 'connected' ? 'Live' : 'Offline'}</span>
+              </div>
+            </Tooltip>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
-                <Activity className="w-3.5 h-3.5" />
-                <span>API: {apiLatency !== null ? `${apiLatency}ms` : 'N/A'}</span>
-            </div>
+            <Tooltip content="Network latency/response time for API requests" position="top-end">
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
+                  <Activity className="w-3.5 h-3.5" />
+                  <span>API: {apiLatency !== null ? `${apiLatency}ms` : 'N/A'}</span>
+              </div>
+            </Tooltip>
         </div>
       </div>
 
@@ -151,6 +239,33 @@ export default function DashboardClient() {
           </div>
       )}
 
+      {/* CA Download Stats (Admin Only) */}
+      {stats?.ca_downloads_root !== undefined && (
+          <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">CA Certificate Downloads</h3>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <StatsCard 
+                    title="Root CA" 
+                    value={stats.ca_downloads_root} 
+                    icon={<Download className="w-6 h-6 text-brand-500" />}
+                    footer="Global Trust Root"
+                  />
+                  <StatsCard 
+                    title="Intermediate 2048" 
+                    value={stats.ca_downloads_intermediate_2048} 
+                    icon={<Download className="w-6 h-6 text-blue-500" />}
+                    footer="Standard Issuance"
+                  />
+                  <StatsCard 
+                    title="Intermediate 4096" 
+                    value={stats.ca_downloads_intermediate_4096} 
+                    icon={<Download className="w-6 h-6 text-indigo-500" />}
+                    footer="High Security"
+                  />
+              </div>
+          </div>
+      )}
+
       {/* Log / Activity Section */}
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:bg-gray-900 dark:border-gray-800 shadow-sm">
@@ -159,15 +274,32 @@ export default function DashboardClient() {
                     <button className="text-sm text-brand-500 hover:underline">View All</button>
                 </div>
                 {activity && activity.length > 0 ? (
-                    <ul className="space-y-3">
+                    <div className="space-y-4">
                         {activity.map((item: any, i: number) => (
-                             <li key={i} className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300">
-                                <span className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600"></span>
-                                <span>User {item.name} registered.</span>
-                                <span className="ml-auto text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString()}</span>
-                             </li>
+                             <div key={item.id || i} className="flex items-start gap-4">
+                                <div className="w-10 h-10 rounded-full bg-gray-50 dark:bg-gray-800 flex-shrink-0 flex items-center justify-center relative">
+                                     {item.user_avatar ? (
+                                         <img src={item.user_avatar} alt="" className="w-full h-full object-cover rounded-full" />
+                                     ) : (
+                                         <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-full">
+                                            <span className="text-xs font-bold text-gray-400">{item.user_name.charAt(0)}</span>
+                                         </div>
+                                     )}
+                                     <div className="absolute -bottom-1 -right-1 bg-white dark:bg-gray-900 rounded-full p-1 shadow-theme-sm border border-gray-100 dark:border-gray-800">
+                                         {getActivityIcon(item.action)}
+                                     </div>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                        <span className="text-brand-500 font-bold">{item.user_name}</span> {item.description || item.action}
+                                    </p>
+                                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                        {new Date(item.created_at).toLocaleString()}
+                                    </p>
+                                </div>
+                             </div>
                         ))}
-                    </ul>
+                    </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center py-10 text-gray-400">
                         <Clock className="w-8 h-8 mb-2 opacity-50" />
@@ -176,9 +308,22 @@ export default function DashboardClient() {
                 )}
             </div>
             
-            {/* Placeholder for Chart or other widget */}
-            <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:bg-gray-900 dark:border-gray-800 shadow-sm flex items-center justify-center min-h-[200px]">
-                 <p className="text-gray-400 text-sm">Traffic Chart Placeholder</p> 
+            <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:bg-gray-900 dark:border-gray-800 shadow-sm">
+                 <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Certificate Trends</h3>
+                    <div className="flex items-center gap-1 text-xs text-green-500 font-medium">
+                        <Activity className="w-3.5 h-3.5" />
+                        <span>Last 7 Days</span>
+                    </div>
+                </div>
+                <div className="min-h-[250px] w-full">
+                     <Chart
+                        options={chartOptions}
+                        series={chartSeries}
+                        type="area"
+                        height={250}
+                    />
+                </div>
             </div>
        </div>
     </div>
@@ -237,6 +382,3 @@ function StatsCard({ title, value, icon, trend, trendLabel, footer, alert }: any
         </div>
     );
 }
-
-// Icons needed for this file
-import { CheckCircle, MessageSquare } from "lucide-react";

@@ -189,7 +189,8 @@
     cursor: pointer;
   }
   body {
-    @apply relative font-sans z-1 bg-gray-50;
+    @apply relative z-1 bg-gray-50;
+    font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   }
 }
 

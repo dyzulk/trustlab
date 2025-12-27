@@ -14,6 +14,7 @@ import UserModal from "@/components/users/UserModal";
 import { Edit, Trash, MoreVertical, Shield, User as UserIcon, Mail, Calendar, Search } from "lucide-react";
 import Image from "next/image";
 import { getUserAvatar } from "@/lib/utils";
+import PageLoader from "@/components/ui/PageLoader";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -218,7 +219,7 @@ export default function UsersManagementClient() {
           
           {(isLoading || isDeleting) && (
             <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 flex items-center justify-center z-10 backdrop-blur-sm rounded-2xl">
-              <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+              <PageLoader text="Processing..." className="h-full" />
             </div>
           )}
         </ComponentCard>

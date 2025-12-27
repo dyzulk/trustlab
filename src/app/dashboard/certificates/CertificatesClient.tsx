@@ -12,6 +12,7 @@ import { useToast } from "@/context/ToastContext";
 import Button from "@/components/ui/button/Button";
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 import CreateCertificateModal from "@/components/certificates/CreateCertificateModal";
+import PageLoader from "@/components/ui/PageLoader";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -123,7 +124,7 @@ export default function CertificatesClient() {
           
           {(isLoading || isDeleting) && (
             <div className="absolute inset-0 bg-white/50 dark:bg-gray-900/50 flex items-center justify-center z-10 backdrop-blur-sm rounded-2xl">
-              <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
+               <PageLoader text="Processing..." className="h-full" />
             </div>
           )}
         </ComponentCard>

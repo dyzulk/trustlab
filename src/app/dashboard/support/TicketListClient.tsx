@@ -9,6 +9,7 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ComponentCard from "@/components/common/ComponentCard";
 import Link from "next/link";
 import { parseApiError } from "@/lib/utils";
+import PageLoader from "@/components/ui/PageLoader";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -128,10 +129,7 @@ export default function TicketListClient() {
 
       <div className="grid grid-cols-1 gap-4">
         {isLoading ? (
-          <div className="text-center py-20">
-            <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading your tickets...</p>
-          </div>
+          <PageLoader text="Loading your tickets..." className="py-20" />
         ) : filteredTickets.length > 0 ? (
           filteredTickets.map((ticket: any) => (
             <Link
@@ -202,7 +200,7 @@ export default function TicketListClient() {
 
       {/* Create Ticket Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-99999 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white dark:bg-gray-dark w-full max-w-lg rounded-2xl shadow-theme-xl overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-gray-800">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">Create New Support Ticket</h2>

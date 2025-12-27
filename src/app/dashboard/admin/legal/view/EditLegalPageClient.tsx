@@ -3,15 +3,22 @@
 import React from "react";
 import useSWR from "swr";
 import axios from "@/lib/axios";
+import PageLoader from "@/components/ui/PageLoader";
+
 import AdminLegalEditorClient from "../AdminLegalEditorClient";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
-
 export default function EditLegalPageClient({ id }: { id: string }) {
-  const { data, isLoading, error } = useSWR(`/api/admin/legal-pages/${id}`, fetcher);
+  const { data, error, isLoading } = useSWR(
+    id ? `/api/admin/legal-pages/${id}` : null,
+    (url) => axios.get(url).then((res) => res.data)
+  );
+
+  if (!id) {
+    return <div className="p-10 text-center text-red-500">Invalid Page ID provided.</div>;
+  }
 
   if (isLoading) {
-      return <div className="p-10 text-center">Loading page data...</div>;
+      return <PageLoader text="Loading page editor..." />;
   }
 
   if (error || !data) {

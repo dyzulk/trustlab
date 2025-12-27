@@ -12,65 +12,44 @@ import ComponentCard from "@/components/common/ComponentCard";
 import Link from "next/link";
 import { getUserAvatar, parseApiError } from "@/lib/utils";
 import Image from "next/image";
+import PageLoader from "@/components/ui/PageLoader";
+
 import ConfirmationModal from "@/components/common/ConfirmationModal";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
-
 const statusColors: any = {
-  open: "bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400",
-  answered: "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400",
-  closed: "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400",
+  open: "bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400 border border-blue-200 dark:border-blue-800/20",
+  answered: "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400 border border-green-200 dark:border-green-800/20",
+  closed: "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400 border border-gray-200 dark:border-gray-800/20",
 };
 
 const priorityColors: any = {
-  low: "bg-gray-100 text-gray-800 dark:bg-gray-500/10 dark:text-gray-400",
-  medium: "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400",
-  high: "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400",
+  low: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  medium: "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400",
+  high: "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400",
 };
 
 export default function AdminTicketDetailsClient() {
   const searchParams = useSearchParams();
-  const id = searchParams.get('id');
-  const { addToast } = useToast();
+  const ticketId = searchParams.get("id");
   const { user } = useAuth();
-  const router = useRouter();
-  const { data: ticket, mutate, isLoading } = useSWR(`/api/support/tickets/${id}`, fetcher);
+  const { addToast } = useToast();
   const [replyMessage, setReplyMessage] = useState("");
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCloseModalOpen, setIsCloseModalOpen] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: ticket, error, isLoading, mutate } = useSWR(
+    ticketId ? `/api/support/tickets/${ticketId}` : null,
+    (url) => axios.get(url).then((res) => res.data)
+  );
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [ticket?.replies]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-
-      // Calculate remaining slots
-      const remainingSlots = 5 - selectedFiles.length;
-
-      if (newFiles.length > remainingSlots) {
-         addToast(`You can only attach ${remainingSlots} more file(s). Max 5 totals.`, "error");
-         return;
-      }
-
-      const validFiles = newFiles.slice(0, remainingSlots).filter(file => file.size <= 10 * 1024 * 1024);
-      if (validFiles.length !== newFiles.length) {
-         addToast("Some files skipped (max 10MB)", "warning");
-      }
-      setSelectedFiles(prev => [...prev, ...validFiles]);
-    }
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-  };
 
   const handleReply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,21 +58,18 @@ export default function AdminTicketDetailsClient() {
     setIsSubmitting(true);
     const formData = new FormData();
     formData.append("message", replyMessage);
-    selectedFiles.forEach(file => {
-      formData.append("attachments[]", file);
-    });
+    selectedFiles.forEach((file) => formData.append("attachments[]", file));
 
     try {
-      await axios.post(`/api/support/tickets/${id}/reply`, formData, {
+      await axios.post(`/api/support/tickets/${ticketId}/reply`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setReplyMessage("");
       setSelectedFiles([]);
       mutate();
-      addToast("Support reply sent", "success");
-    } catch (error: any) {
-      console.error("Reply error:", error.response?.data || error.message);
-      addToast(parseApiError(error, "Failed to send reply"), "error");
+      addToast("Reply sent successfully", "success");
+    } catch (err: any) {
+      addToast(parseApiError(err, "Failed to send reply"), "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,26 +77,55 @@ export default function AdminTicketDetailsClient() {
 
   const handleCloseTicket = async () => {
     try {
-      await axios.patch(`/api/support/tickets/${id}/close`);
-      mutate();
-      addToast("Ticket has been marked as closed", "success");
+      await axios.patch(`/api/support/tickets/${ticketId}/close`);
+      addToast("Ticket closed successfully", "success");
       setIsCloseModalOpen(false);
-    } catch (error: any) {
-      console.error("Close ticket error:", error.response?.data || error.message);
-      addToast(parseApiError(error, "Failed to close ticket"), "error");
+      mutate();
+    } catch (err: any) {
+      addToast(parseApiError(err, "Failed to close ticket"), "error");
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      if (selectedFiles.length + filesArray.length > 5) {
+        addToast("Max 5 files allowed", "error");
+        return;
+      }
+      setSelectedFiles((prev) => [...prev, ...filesArray]);
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   if (isLoading) {
-    return (
-      <div className="text-center py-20">
-        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p className="text-gray-500 italic">Syncing conversation history...</p>
-      </div>
-    );
+    return <PageLoader text="Syncing conversation history..." />;
   }
 
-  if (!ticket) return null;
+  if (error?.response?.status === 404 || !ticket) {
+      return (
+          <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-theme-xl max-w-2xl mx-auto">
+              <div className="w-20 h-20 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-6">
+                  <AlertCircle size={40} className="text-gray-400" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Ticket Not Found</h2>
+              <p className="text-gray-500 dark:text-gray-400 text-center max-w-md px-6 mb-8">
+                  The ticket you are looking for does not exist or has been removed. 
+                  This can happen after a system refresh or database cleanup.
+              </p>
+              <Link 
+                  href="/dashboard/admin/tickets"
+                  className="flex items-center gap-2 px-6 py-3 bg-brand-500 text-white rounded-xl hover:bg-brand-600 transition-all shadow-theme-md font-bold"
+              >
+                  <ArrowLeft size={20} />
+                  Back to Ticket List
+              </Link>
+          </div>
+      );
+  }
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">

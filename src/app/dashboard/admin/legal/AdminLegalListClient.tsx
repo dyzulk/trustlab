@@ -8,6 +8,7 @@ import ComponentCard from "@/components/common/ComponentCard";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import Link from "next/link";
 import { useToast } from "@/context/ToastContext";
+import PageLoader from "@/components/ui/PageLoader";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -75,7 +76,7 @@ export default function AdminLegalListClient() {
                {isLoading ? (
                   <tr>
                      <td colSpan={4} className="p-8 text-center text-gray-500 italic">
-                        Loading legal pages...
+                        <PageLoader text="Loading legal pages..." className="py-10" />
                      </td>
                   </tr>
                ) : filteredPages.length === 0 ? (

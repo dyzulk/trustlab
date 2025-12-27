@@ -9,22 +9,24 @@ import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import ComponentCard from "@/components/common/ComponentCard";
 import Image from "next/image";
 import { getUserAvatar } from "@/lib/utils";
-import Link from "next/link";
+import PageLoader from "@/components/ui/PageLoader";
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+import Link from "next/link";
 
 export default function UserProfileClient() {
   const searchParams = useSearchParams();
-  const id = searchParams.get('id');
   const router = useRouter();
-  const { data: user, error, isLoading } = useSWR(id ? `/api/admin/users/${id}` : null, fetcher);
+  const id = searchParams.get("id");
+
+  const { data, error, isLoading } = useSWR(
+    id ? `/api/admin/users/${id}` : null,
+    (url) => axios.get(url).then((res) => res.data)
+  );
+
+  const user = data;
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="w-10 h-10 border-4 border-brand-500 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <PageLoader text="Loading user profile..." />;
   }
 
   if (error || !user) {

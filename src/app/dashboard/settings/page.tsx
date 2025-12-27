@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import React from "react";
+import { Suspense } from "react";
 import SettingsClient from "./SettingsClient";
 
 export const metadata: Metadata = {
@@ -14,7 +14,13 @@ export default function SettingsPage() {
         <h3 className="mb-5 text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-7">
           Account Settings
         </h3>
-        <SettingsClient />
+        <Suspense fallback={
+          <div className="flex items-center justify-center p-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent"></div>
+          </div>
+        }>
+          <SettingsClient />
+        </Suspense>
       </div>
     </div>
   );

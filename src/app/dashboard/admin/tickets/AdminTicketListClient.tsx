@@ -10,6 +10,7 @@ import ComponentCard from "@/components/common/ComponentCard";
 import Link from "next/link";
 import { getUserAvatar } from "@/lib/utils";
 import Image from "next/image";
+import PageLoader from "@/components/ui/PageLoader";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -91,8 +92,7 @@ export default function AdminTicketListClient() {
               {isLoading ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-20 text-center">
-                    <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-                    <p className="text-xs text-gray-500 italic">Syncing tickers...</p>
+                    <PageLoader text="Syncing tickets..." className="py-10" />
                   </td>
                 </tr>
               ) : filteredTickets.length > 0 ? (
