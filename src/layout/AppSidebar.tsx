@@ -340,7 +340,7 @@ const AppSidebar: React.FC = () => {
                 >
                   {isExpanded || isHovered || isMobileOpen ? (
                     (() => {
-                      const key = group.title.toLowerCase();
+                      const key = group.title.toLowerCase().replace(/\s+/g, '_');
                       try { return t(key); } catch { return group.title; }
                     })()
                   ) : (
