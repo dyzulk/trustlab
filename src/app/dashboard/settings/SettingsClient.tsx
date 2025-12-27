@@ -41,6 +41,8 @@ import { useTheme } from "@/context/ThemeContext";
 import Switch from "@/components/form/switch/Switch";
 import { useRouter, useSearchParams } from "next/navigation";
 import PageLoader from "@/components/ui/PageLoader";
+import { useTranslations } from "next-intl";
+import { useI18n } from "@/components/providers/I18nProvider";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -55,6 +57,8 @@ export default function SettingsClient() {
   const { addToast } = useToast();
   const { theme: currentTheme, setTheme } = useTheme();
   const { isOpen, openModal, closeModal } = useModal();
+  const { setLocale } = useI18n();
+  const t = useTranslations("Settings");
   
   const [isSavingPassword, setIsSavingPassword] = useState(false);
   const [isDeletingAccount, setIsDeletingAccount] = useState(false);
@@ -187,6 +191,7 @@ export default function SettingsClient() {
         });
 
         if (key === 'theme') setTheme(value);
+        if (key === 'language') setLocale(value);
 
         mutateUser(); // Refresh user data to confirm sync
         addToast("Settings updated", "success");
@@ -572,12 +577,12 @@ export default function SettingsClient() {
           
           <div className="space-y-6">
             <div>
-              <Label className="mb-3 block text-sm font-medium">Theme Preference</Label>
+              <Label className="mb-3 block text-sm font-medium">{t('theme')}</Label>
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { id: 'light', label: 'Light', icon: <Sun className="w-4 h-4" /> },
-                  { id: 'dark', label: 'Dark', icon: <Moon className="w-4 h-4" /> },
-                  { id: 'system', label: 'System', icon: <Laptop className="w-4 h-4" /> },
+                  { id: 'light', label: t('light'), icon: <Sun className="w-4 h-4" /> },
+                  { id: 'dark', label: t('dark'), icon: <Moon className="w-4 h-4" /> },
+                  { id: 'system', label: t('system'), icon: <Laptop className="w-4 h-4" /> },
                 ].map((t) => (
                   <button
                     key={t.id}
@@ -596,15 +601,15 @@ export default function SettingsClient() {
             </div>
 
             <div>
-              <Label className="mb-3 block text-sm font-medium">Language</Label>
+              <Label className="mb-3 block text-sm font-medium">{t('language')}</Label>
               <div className="relative">
                 <select 
                   value={user?.language || 'en'}
                   onChange={(e) => savePreference('language', e.target.value)}
                   className="w-full bg-transparent border border-gray-100 dark:border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-700 dark:text-gray-300 focus:border-brand-500 outline-none appearance-none transition-all"
                 >
-                  <option value="en">English (US)</option>
-                  <option value="id">Bahasa Indonesia</option>
+                  <option value="en">{t('english')}</option>
+                  <option value="id">{t('indonesian')}</option>
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
                   <ChevronRight className="w-4 h-4 rotate-90" />

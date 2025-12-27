@@ -7,6 +7,7 @@ import { SidebarProvider } from '@/context/SidebarContext';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { ToastProvider } from '@/context/ToastContext';
 import { ToastContainer } from '@/components/ui/toast/Toast';
+import { I18nProvider } from '@/components/providers/I18nProvider';
 
 
 export const metadata: Metadata = {
@@ -26,10 +27,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased dark:bg-gray-900`}>
         <ThemeProvider>
-          <ToastProvider>
-            <SidebarProvider>{children}</SidebarProvider>
-            <ToastContainer />
-          </ToastProvider>
+          <I18nProvider>
+            <ToastProvider>
+              <SidebarProvider>{children}</SidebarProvider>
+              <ToastContainer />
+            </ToastProvider>
+          </I18nProvider>
         </ThemeProvider>
       </body>
     </html>

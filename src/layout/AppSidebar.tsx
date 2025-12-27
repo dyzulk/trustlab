@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState,useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import useSWR from "swr";
@@ -59,6 +60,7 @@ const getIcon = (iconName: string) => iconMap[iconName] || <BoxCubeIcon />;
 const AppSidebar: React.FC = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+  const t = useTranslations("Navigation");
 
   const renderMenuItems = (
     navItems: NavItem[],
@@ -90,7 +92,12 @@ const AppSidebar: React.FC = () => {
                 {getIcon(nav.icon)}
               </span>
               {(isExpanded || isHovered || isMobileOpen) && (
-                <span className={`menu-item-text`}>{nav.name}</span>
+                <span className={`menu-item-text`}>
+                  {(() => {
+                    const key = nav.name.toLowerCase();
+                    try { return t(key); } catch { return nav.name; }
+                  })()}
+                </span>
               )}
               {(isExpanded || isHovered || isMobileOpen) && (
                 <ChevronDownIcon
@@ -150,7 +157,10 @@ const AppSidebar: React.FC = () => {
                           : "menu-dropdown-item-inactive"
                       }`}
                     >
-                      {subItem.name}
+                      {(() => {
+                        const key = subItem.name.toLowerCase().replace(/\s+/g, '_');
+                        try { return t(key); } catch { return subItem.name; }
+                      })()}
                       <span className="flex items-center gap-1 ml-auto">
                         {subItem.new && (
                           <span
@@ -321,7 +331,10 @@ const AppSidebar: React.FC = () => {
                   }`}
                 >
                   {isExpanded || isHovered || isMobileOpen ? (
-                    group.title
+                    (() => {
+                      const key = group.title.toLowerCase();
+                      try { return t(key); } catch { return group.title; }
+                    })()
                   ) : (
                     <HorizontaLDots />
                   )}

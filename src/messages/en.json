@@ -1,0 +1,36 @@
+{
+    "Common": {
+        "dashboard": "Dashboard",
+        "settings": "Settings",
+        "logout": "Logout",
+        "save": "Save",
+        "cancel": "Cancel",
+        "loading": "Loading...",
+        "search": "Search...",
+        "no_data": "No data found"
+    },
+    "Navigation": {
+        "home": "Home",
+        "certificates": "Certificates",
+        "issuance": "Issuance",
+        "revocation": "Revocation",
+        "support": "Support",
+        "tickets": "Tickets",
+        "administration": "Administration",
+        "users": "User Management",
+        "legal_pages": "Legal Pages",
+        "activity_logs": "Activity Logs",
+        "dashboard": "Dashboard"
+    },
+    "Settings": {
+        "appearance": "Appearance",
+        "theme": "Theme",
+        "language": "Language",
+        "light": "Light",
+        "dark": "Dark",
+        "system": "System",
+        "english": "English (US)",
+        "indonesian": "Bahasa Indonesia",
+        "landing_page": "Default Landing Page"
+    }
+}
