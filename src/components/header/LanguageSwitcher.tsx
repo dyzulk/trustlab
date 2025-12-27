@@ -1,7 +1,7 @@
 "use client";
 
-import React from "react";
 import { useI18n } from "@/components/providers/I18nProvider";
+import { useAuth } from "@/hooks/useAuth";
 import axios from "@/lib/axios";
 import { useTranslations } from "next-intl";
 import { LanguagesIcon } from "lucide-react";
@@ -9,7 +9,7 @@ import useSWR from "swr";
 
 export const LanguageSwitcher: React.FC = () => {
   const { locale, setLocale } = useI18n();
-  const { mutate } = useSWR('/api/user');
+  const { user, mutate } = useAuth();
   
   const toggleLanguage = async () => {
     const newLocale = locale === "en" ? "id" : "en";
@@ -17,13 +17,14 @@ export const LanguageSwitcher: React.FC = () => {
       // Update locally for instant feedback
       setLocale(newLocale);
       
-      // Update backend for persistence
-      await axios.patch("/api/profile", {
-        language: newLocale,
-      });
-      
-      // Refresh user data
-      mutate();
+      // Update backend for persistence if user is logged in
+      if (user) {
+        await axios.patch("/api/profile", {
+          language: newLocale,
+        });
+        // Refresh user data
+        mutate();
+      }
     } catch (error) {
       console.error("Failed to update language preference", error);
     }

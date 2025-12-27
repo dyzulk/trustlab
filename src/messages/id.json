@@ -27,7 +27,15 @@
         "user_management": "Manajemen Pengguna",
         "legal_page_management": "Halaman Hukum",
         "activity_logs": "Log Aktivitas",
-        "dashboard": "Dasbor"
+        "dashboard": "Dasbor",
+        "features": "Fitur",
+        "tools": "Alat",
+        "contact": "Kontak",
+        "signin": "Masuk",
+        "signup": "Mulai Sekarang",
+        "signout": "Keluar",
+        "chat_id_finder": "Pencari Chat ID",
+        "app_key_generator": "Pembuat Kunci App"
     },
     "Settings": {
         "appearance": "Tampilan",

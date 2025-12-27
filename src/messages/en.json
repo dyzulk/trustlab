@@ -27,7 +27,15 @@
         "user_management": "User Management",
         "legal_page_management": "Legal Pages",
         "activity_logs": "Activity Logs",
-        "dashboard": "Dashboard"
+        "dashboard": "Dashboard",
+        "features": "Features",
+        "tools": "Tools",
+        "contact": "Contact",
+        "signin": "Sign In",
+        "signup": "Get Started",
+        "signout": "Sign Out",
+        "chat_id_finder": "Chat ID Finder",
+        "app_key_generator": "App Key Generator"
     },
     "Settings": {
         "appearance": "Appearance",
