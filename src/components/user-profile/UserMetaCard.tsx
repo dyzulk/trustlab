@@ -12,6 +12,7 @@ import Input from "../form/input/InputField";
 import Label from "../form/Label";
 import Image from "next/image";
 import { getUserAvatar } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -19,6 +20,7 @@ export default function UserMetaCard() {
   const { data: user, isLoading: userLoading } = useSWR("/api/user", fetcher);
   const { isOpen, openModal, closeModal } = useModal();
   const { addToast } = useToast();
+  const t = useTranslations("Profile");
   
   const [selectedFile, setSelectedFile] = React.useState<string | null>(null);
   const [isCropperOpen, setIsCropperOpen] = React.useState(false);
@@ -42,7 +44,7 @@ export default function UserMetaCard() {
       // Check for file size limit (5MB)
       const maxSize = 5 * 1024 * 1024;
       if (file.size > maxSize) {
-        addToast("File size too large. Maximum limit is 5MB.", "error");
+        addToast(t("toast_file_size_error"), "error");
         // Reset input
         e.target.value = "";
         return;
@@ -62,14 +64,14 @@ export default function UserMetaCard() {
     formData.append("avatar", croppedImage, "avatar.png");
 
     try {
-      addToast("Updating avatar...", "info");
+      addToast(t("toast_updating_avatar"), "info");
       await axios.post("/api/profile/avatar", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       mutate("/api/user");
-      addToast("Avatar updated successfully", "success");
+      addToast(t("toast_avatar_success"), "success");
     } catch (err) {
-      addToast("Failed to update avatar", "error");
+      addToast(t("toast_avatar_error"), "error");
     }
   };
 
@@ -82,10 +84,10 @@ export default function UserMetaCard() {
         location: location,
       });
       mutate("/api/user");
-      addToast("Profile updated successfully", "success");
+      addToast(t("toast_profile_success"), "success");
       closeModal();
     } catch (err) {
-      addToast("Failed to update profile", "error");
+      addToast(t("toast_profile_error"), "error");
     } finally {
       setIsSaving(false);
     }
@@ -108,7 +110,7 @@ export default function UserMetaCard() {
                 unoptimized={true}
               />
               <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 cursor-pointer">
-                <span className="text-white text-[10px] font-medium uppercase">Change</span>
+                <span className="text-white text-[10px] font-medium uppercase">{t("change_avatar")}</span>
                 <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
               </label>
             </div>
@@ -118,11 +120,11 @@ export default function UserMetaCard() {
               </h4>
               <div className="flex flex-col items-center gap-1 text-center xl:flex-row xl:gap-3 xl:text-left">
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user?.job_title || "No job title"}
+                  {user?.job_title || t("no_job_title")}
                 </p>
                 <div className="hidden h-3.5 w-px bg-gray-300 dark:bg-gray-700 xl:block"></div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {user?.location || "No location"}
+                  {user?.location || t("no_location")}
                 </p>
               </div>
             </div>
@@ -231,7 +233,7 @@ export default function UserMetaCard() {
                 fill=""
               />
             </svg>
-            Edit
+            {t("edit_button")}
           </button>
         </div>
       </div>
@@ -239,42 +241,42 @@ export default function UserMetaCard() {
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Metadata
+              {t("edit_metadata_title")}
             </h4>
             <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your job title and location.
+              {t("edit_metadata_subtitle")}
             </p>
           </div>
           <form className="flex flex-col" onSubmit={handleSave}>
             <div className="custom-scrollbar px-2 pb-3">
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div className="col-span-2 lg:col-span-1">
-                  <Label>Job Title</Label>
+                  <Label>{t("job_title_label")}</Label>
                   <Input 
                     type="text" 
                     value={jobTitle} 
                     onChange={(e) => setJobTitle(e.target.value)}
-                    placeholder="e.g. Software Engineer"
+                    placeholder={t("job_title_placeholder")}
                   />
                 </div>
 
                 <div className="col-span-2 lg:col-span-1">
-                  <Label>Location</Label>
+                  <Label>{t("location_label")}</Label>
                   <Input 
                     type="text" 
                     value={location} 
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="e.g. Jakarta, Indonesia"
+                    placeholder={t("location_placeholder")}
                   />
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" type="button" onClick={closeModal} disabled={isSaving}>
-                Close
+                {t("close_button")}
               </Button>
               <Button size="sm" type="submit" loading={isSaving}>
-                Save Changes
+                {t("save_changes_button")}
               </Button>
             </div>
           </form>

@@ -6,10 +6,12 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useAuth } from "@/hooks/useAuth";
 import { getUserAvatar } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const { user, logout } = useAuth();
+  const t = useTranslations("Common");
 
 function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
   e.stopPropagation();
@@ -36,7 +38,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
         </span>
 
         <span className="block mr-1 font-medium text-theme-sm">
-          {user?.first_name ? `${user?.first_name} ${user?.last_name || ''}` : "Guest User"}
+          {user?.first_name ? `${user?.first_name} ${user?.last_name || ''}` : t("guest_user")}
         </span>
 
         <svg
@@ -66,10 +68,10 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
       >
         <div>
           <span className="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-            {user?.first_name ? `${user?.first_name} ${user?.last_name || ''}` : "Guest User"}
+            {user?.first_name ? `${user?.first_name} ${user?.last_name || ''}` : t("guest_user")}
           </span>
           <span className="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-            {user?.email || "No email"}
+            {user?.email || t("no_email")}
           </span>
         </div>
 
@@ -96,7 +98,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
                   fill=""
                 />
               </svg>
-              Edit profile
+              {t("edit_profile")}
             </DropdownItem>
           </li>
           <li>
@@ -121,7 +123,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
                   fill=""
                 />
               </svg>
-              Account settings
+              {t("account_settings")}
             </DropdownItem>
           </li>
           {user?.role === 'admin' && (
@@ -145,7 +147,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
                     fill="currentColor"
                   />
                 </svg>
-                SMTP Tester
+                {t("smtp_tester")}
               </DropdownItem>
             </li>
           )}
@@ -171,7 +173,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
                   fill=""
                 />
               </svg>
-              Support
+              {t("support")}
             </DropdownItem>
           </li>
         </ul>
@@ -194,7 +196,7 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
               fill=""
             />
           </svg>
-          Sign out
+          {t("sign_out")}
         </button>
       </Dropdown>
     </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import CommonGridShape from "@/components/common/CommonGridShape";
 import { useEffect, useState } from "react";
 import axios from '@/lib/axios';
+import { useTranslations } from "next-intl";
 
 interface CaCertificate {
     name: string;
@@ -53,6 +54,7 @@ function ScrollToTop() {
 }
 
 export default function HomeClient() {
+    const t = useTranslations("Home");
     const [certificates, setCertificates] = useState<CaCertificate[]>([]);
     const [loadingCerts, setLoadingCerts] = useState(true);
 
@@ -100,23 +102,23 @@ export default function HomeClient() {
 
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-50 dark:bg-brand-500/10 border border-brand-100 dark:border-brand-500/20 text-brand-600 dark:text-brand-400 text-xs font-bold uppercase tracking-widest mb-8 animate-bounce">
-                            🚀 Unified Certificate Management
+                            🚀 {t('hero_tag')}
                         </div>
                         <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 dark:text-white mb-6 leading-tight">
-                            Secure Your Assets with <br/>
+                            {t('hero_title_1')} <br/>
                             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 to-blue-600">
-                                Trusted Certificate Authority
+                                {t('hero_title_2')}
                             </span>
                         </h1>
                         <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10">
-                            Issue, manage, and track SSL/TLS certificates and API keys through a powerful, developer-friendly management system.
+                            {t('hero_desc')}
                         </p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                             <Link href="/signup" className="w-full sm:w-auto px-8 py-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-2xl font-bold shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl">
-                                Create Global Account
+                                {t('cta_create_account')}
                             </Link>
                             <a href="#features" onClick={(e) => handleScroll(e, '#features')} className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold transition-all hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer">
-                                Explore Features
+                                {t('cta_explore_features')}
                             </a>
                         </div>
 
@@ -155,8 +157,8 @@ export default function HomeClient() {
                 <section id="features" className="py-24 bg-gray-50 dark:bg-gray-900/50">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Powerful Features for Modern Apps</h2>
-                            <p className="text-gray-600 dark:text-gray-400">Everything you need to manage your security layer efficiently.</p>
+                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">{t('features_title')}</h2>
+                            <p className="text-gray-600 dark:text-gray-400">{t('features_desc')}</p>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -167,9 +169,9 @@ export default function HomeClient() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Custom CA Issuance</h3>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('feature_1_title')}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                                    Issue professional Root and Intermediate CA certificates with a single click. Fully compliant with standard encryption protocols.
+                                    {t('feature_1_desc')}
                                 </p>
                             </div>
 
@@ -180,9 +182,9 @@ export default function HomeClient() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11.536 11 9 13.536 7.464 12 4.929 14.536V17h2.472l4.243-4.243a6 6 0 018.828-5.743zM16.5 13.5V18h6v-4.5h-6z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">API Management</h3>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('feature_2_title')}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                                    Secure your external services with granular API keys. Track usage patterns and revoke access instantly when needed.
+                                    {t('feature_2_desc')}
                                 </p>
                             </div>
 
@@ -193,9 +195,9 @@ export default function HomeClient() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">Real-time Tracking</h3>
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">{t('feature_3_title')}</h3>
                                 <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
-                                    Monitor issuance trends and expiring certificates through intuitive analytical dashboards and automated alerts.
+                                    {t('feature_3_desc')}
                                 </p>
                             </div>
                         </div>
@@ -212,9 +214,9 @@ export default function HomeClient() {
 
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">Public Trust Store</h2>
+                            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">{t('trust_store_title')}</h2>
                             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                                Download our Root and Intermediate CA certificates to trust secure connections issued by TrustLab.
+                                {t('trust_store_desc')}
                             </p>
                         </div>
 
@@ -255,7 +257,7 @@ export default function HomeClient() {
                                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                                                     </svg>
-                                                    Standard
+                                                    {t('download_standard')}
                                                 </a>
                                                 <a 
                                                     href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/public/ca-certificates/${cert.serial}/download?format=der`} 
@@ -265,7 +267,7 @@ export default function HomeClient() {
                                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                                                         <path d="M17.523 15.3414C17.523 16.7113 16.4805 17.7719 15.1743 17.7719C13.8681 17.7719 12.8257 16.7113 12.8257 15.3414C12.8257 13.9715 13.8681 12.9109 15.1743 12.9109C16.4805 12.9109 17.523 13.9715 17.523 15.3414ZM11.1714 15.3414C11.1714 16.7113 10.1289 17.7719 8.82276 17.7719C7.51659 17.7719 6.47412 16.7113 6.47412 15.3414C6.47412 13.9715 7.51659 12.9109 8.82276 12.9109C10.1289 12.9109 11.1714 13.9715 11.1714 15.3414ZM16.3262 5.86762L17.7119 3.44754C17.7981 3.29806 17.7513 3.10499 17.5932 3.01894C17.4391 2.92983 17.2505 2.97372 17.152 3.1232L15.7251 5.61793C14.0754 4.86961 12.1956 4.86961 10.5982 5.5645L9.1713 3.06977C9.0768 2.92028 8.88412 2.87234 8.73004 2.9654C8.5719 3.05144 8.52504 3.24451 8.6112 3.394L9.99708 5.8143C6.31383 7.82084 3.86221 11.6968 3.86221 16.0359H20.1378C20.1378 11.6968 17.6862 7.82084 16.3262 5.86762Z"/>
                                                     </svg>
-                                                    Android
+                                                    {t('download_android')}
                                                 </a>
                                             </div>
                                             <div className="grid grid-cols-2 gap-3">
@@ -277,7 +279,7 @@ export default function HomeClient() {
                                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                                                         <path d="M0 3.449L9.75 2.134V11.3L0 11.3V3.449ZM9.75 12.7L0 12.7V20.551L9.75 19.166V12.7ZM10.5 1.998L24 0.166V11.3L10.5 11.3V1.998ZM10.5 12.7L24 12.7V23.834L10.5 21.966V12.7Z"/>
                                                     </svg>
-                                                    Windows
+                                                    {t('download_windows')}
                                                 </a>
                                                  <a 
                                                     href={`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/public/ca-certificates/${cert.serial}/download/mac`} 
@@ -287,7 +289,7 @@ export default function HomeClient() {
                                                     <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                                                         <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.21-1.96 1.07-3.11-1.05.05-2.31.74-3.03 1.59-.65.77-1.2 2.02-1.07 3.12 1.17.09 2.36-.73 3.03-1.6"/>
                                                     </svg>
-                                                    macOS
+                                                    {t('download_macos')}
                                                 </a>
                                             </div>
                                         </div>
@@ -303,14 +305,14 @@ export default function HomeClient() {
                     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="bg-brand-600 rounded-[3rem] p-12 md:p-16 text-center text-white relative overflow-hidden shadow-2xl">
                             <div className="relative z-10">
-                                <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to secure your application?</h2>
-                                <p className="text-brand-100 mb-10 max-w-lg mx-auto">Join hundreds of developers managing their security infrastructure with TrustLab.</p>
+                                <h2 className="text-3xl md:text-4xl font-bold mb-6">{t('cta_ready_title')}</h2>
+                                <p className="text-brand-100 mb-10 max-w-lg mx-auto">{t('cta_ready_desc')}</p>
                                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                                     <Link href="/signup" className="px-8 py-4 bg-white text-brand-600 rounded-2xl font-bold hover:scale-105 transition-transform">
-                                        Create Free Account
+                                        {t('cta_free_account')}
                                     </Link>
                                     <Link href="/signin" className="px-8 py-4 bg-brand-700 text-white rounded-2xl font-bold hover:bg-brand-800 transition-colors">
-                                        Sign In to Portal
+                                        {t('cta_signin_portal')}
                                     </Link>
                                 </div>
                             </div>
@@ -322,7 +324,7 @@ export default function HomeClient() {
                     </div>
                 </section>
 
-                 {/* Back to Top Button */}
+                {/* Back to Top Button */}
                 <ScrollToTop />
             </div>
     );

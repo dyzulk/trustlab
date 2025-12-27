@@ -3,11 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useTranslations } from "next-intl";
 import CommonGridShape from "@/components/common/CommonGridShape";
 import { Eye, EyeOff } from "lucide-react";
 import axios from "@/lib/axios";
 
 export default function SignupClient() {
+  const t = useTranslations("Auth");
   const { login } = useAuth({
     middleware: "guest",
     redirectIfAuthenticated: "/dashboard",
@@ -67,11 +69,11 @@ export default function SignupClient() {
 
              <div className="mb-5 sm:mb-8">
                 <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 dark:text-white/90 mb-2">
-                    Sign Up
+                    {t('signup_title')}
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Enter your email and password to sign up!
-                </p>
+                <h2 className="text-sm text-gray-500 dark:text-gray-400">
+                    {t('signup_subtitle')}
+                </h2>
              </div>
 
              <div className="grid grid-cols-1 gap-3 md:grid-cols-2 sm:gap-4 mb-5">
@@ -85,14 +87,14 @@ export default function SignupClient() {
                          <path d="M5.10014 11.7305C4.91165 11.186 4.80257 10.6027 4.80257 9.99992C4.80257 9.3971 4.91165 8.81379 5.09022 8.26935L5.08523 8.1534L2.29464 6.02954L2.20333 6.0721C1.5982 7.25823 1.25098 8.5902 1.25098 9.99992C1.25098 11.4096 1.5982 12.7415 2.20333 13.9277L5.10014 11.7305Z" fill="#FBBC05" />
                          <path d="M10.1789 4.63331C11.8554 4.63331 12.9864 5.34303 13.6312 5.93612L16.1511 3.525C14.6035 2.11528 12.5895 1.25 10.1789 1.25C6.68676 1.25 3.67088 3.21387 2.20264 6.07218L5.08953 8.26943C5.81381 6.15972 7.81776 4.63331 10.1789 4.63331Z" fill="#EB4335" />
                     </svg>
-                    Sign up with Google
+                    {t('google_button')}
                 </button>
                 <button
                     onClick={() => socialLogin('github')}
                     className="inline-flex items-center justify-center gap-3 rounded-lg bg-gray-100 px-4 py-3 text-sm font-normal text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10 w-full whitespace-nowrap"
                 >
                     <svg className="h-6 w-6" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
-                    Sign up with GitHub
+                    {t('github_button')}
                 </button>
              </div>
 
@@ -101,7 +103,7 @@ export default function SignupClient() {
                     <div className="w-full border-t border-gray-200 dark:border-gray-800"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                    <span className="bg-white p-2 text-gray-400 sm:px-5 sm:py-2 dark:bg-gray-900">Or</span>
+                    <span className="bg-white p-2 text-gray-400 sm:px-5 sm:py-2 dark:bg-gray-900">{t('social_login_divider')}</span>
                 </div>
             </div>
 
@@ -111,13 +113,13 @@ export default function SignupClient() {
                         {/* First Name */}
                         <div>
                              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                First Name<span className="text-red-500">*</span>
+                                {t('first_name_label')}<span className="text-red-500">*</span>
                              </label>
                              <input
                                  type="text"
                                  value={firstName}
                                  onChange={(e) => setFirstName(e.target.value)}
-                                 placeholder="Enter your first name"
+                                 placeholder={t('first_name_placeholder')}
                                  className="dark:bg-gray-900 shadow-sm focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30"
                              />
                              {errors.fname && <p className="mt-1 text-xs text-red-500">{errors.fname}</p>}
@@ -125,13 +127,13 @@ export default function SignupClient() {
                         {/* Last Name */}
                         <div>
                              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                                Last Name <span className="text-gray-400 font-normal">(Optional)</span>
+                                {t('last_name_label')} <span className="text-gray-400 font-normal">{t('optional_text')}</span>
                              </label>
                              <input
                                  type="text"
                                  value={lastName}
                                  onChange={(e) => setLastName(e.target.value)}
-                                 placeholder="Enter your last name"
+                                 placeholder={t('last_name_placeholder')}
                                  className="dark:bg-gray-900 shadow-sm focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30"
                              />
                              {errors.lname && <p className="mt-1 text-xs text-red-500">{errors.lname}</p>}
@@ -140,13 +142,13 @@ export default function SignupClient() {
 
                     <div>
                         <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                             Email<span className="text-red-500">*</span>
+                             {t('email_label')}<span className="text-red-500">*</span>
                         </label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email"
+                            placeholder={t('email_placeholder')}
                             className="dark:bg-gray-900 shadow-sm focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30"
                         />
                         {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email}</p>}
@@ -154,14 +156,14 @@ export default function SignupClient() {
 
                     <div>
                         <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                             Password<span className="text-red-500">*</span>
+                             {t('password_label')}<span className="text-red-500">*</span>
                         </label>
                         <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                placeholder="Enter your password"
+                                placeholder={t('password_placeholder')}
                                 className="dark:bg-gray-900 shadow-sm focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent py-2.5 pr-11 pl-4 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30"
                             />
                             <button
@@ -184,27 +186,25 @@ export default function SignupClient() {
                                 className="mr-3 h-5 w-5 rounded-md border-gray-300 dark:border-gray-700 text-brand-500 focus:ring-brand-500" 
                             />
                             <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
-                                By creating an account, you agree to our <Link href="/legal/view?slug=terms" className="underline hover:text-gray-700 dark:hover:text-gray-300">Terms</Link> and <Link href="/legal/view?slug=privacy" className="underline hover:text-gray-700 dark:hover:text-gray-300">Privacy Policy</Link>.
+                                {t('agree_to_signup_text')} <Link href="/legal/view?slug=terms" className="underline hover:text-gray-700 dark:hover:text-gray-300">{t('terms_link')}</Link> {t('and_text')} <Link href="/legal/view?slug=privacy" className="underline hover:text-gray-700 dark:hover:text-gray-300">{t('privacy_policy_link')}</Link>.
                             </p>
                          </div>
                     </div>
                     {errors.terms && <p className="mt-1 text-xs text-red-500">{errors.terms}</p>}
-
-                    {/* <Turnstile className="mb-5" /> */}
 
                     <button
                         type="submit"
                         disabled={isLoading}
                         className="bg-brand-500 shadow-md hover:bg-brand-600 w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition disabled:opacity-50"
                     >
-                        {isLoading ? 'Creating Account...' : 'Sign Up'}
+                        {isLoading ? t('creating_account_button') : t('signup_button')}
                     </button>
                 </div>
             </form>
 
             <div className="mt-5">
                  <p className="text-center text-sm font-normal text-gray-700 sm:text-start dark:text-gray-400">
-                    Already have an account? <Link href="/signin" className="text-brand-500 hover:text-brand-600 dark:text-brand-400">Sign In</Link>
+                    {t('already_have_account')} <Link href="/signin" className="text-brand-500 hover:text-brand-600 dark:text-brand-400">{t('signin_link')}</Link>
                  </p>
             </div>
         </div>

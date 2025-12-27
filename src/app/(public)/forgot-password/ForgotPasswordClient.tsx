@@ -2,9 +2,16 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useAuth } from "@/hooks/useAuth";
+import { useTranslations } from "next-intl";
 import CommonGridShape from "@/components/common/CommonGridShape";
 
 export default function ForgotPasswordClient() {
+  const t = useTranslations("Auth");
+  const { login } = useAuth({
+    middleware: "guest",
+    redirectIfAuthenticated: "/dashboard",
+  });
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -16,19 +23,20 @@ export default function ForgotPasswordClient() {
     setMessage(null);
     setError(null);
 
-    // Simulate API call or call actual endpoint (which might fail if not implemented)
-    // For now, we'll show a message or try calling the standard Laravel route if it existed
     try {
-        // await axios.post('/forgot-password', { email });
-        // setMessage("We have emailed your password reset link.");
-        
-        // Placeholder behavior until backend is ready
+        // Placeholder behavior until backend is ready or using forgotPassword from useAuth
         setTimeout(() => {
-            setError("Password reset is currently disabled. Please contact support.");
+            setError(t("forgot_password_disabled_message"));
             setIsLoading(false);
         }, 1000);
+        // To use the actual forgotPassword from useAuth, uncomment and adjust:
+        // await forgotPassword({
+        //     email,
+        //     setStatus: setMessage,
+        //     setErrors: setError,
+        // });
     } catch (err: any) {
-        setError(err.response?.data?.message || "An error occurred.");
+        setError(err.response?.data?.message || t("forgot_password_error_generic"));
         setIsLoading(false);
     }
   };
@@ -40,10 +48,10 @@ export default function ForgotPasswordClient() {
         <div className="mx-auto w-full max-w-md pt-5 sm:py-10 px-4 sm:px-0">
              <div className="mb-5 sm:mb-8">
                 <h1 className="text-2xl sm:text-3xl font-semibold text-gray-800 dark:text-white/90 mb-2">
-                    Reset Password
+                    {t('forgot_password_title')}
                 </h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Enter your email address and we'll send you a link to reset your password.
+                    {t('forgot_password_subtitle')}
                 </p>
              </div>
 
@@ -51,13 +59,13 @@ export default function ForgotPasswordClient() {
                 <div className="space-y-5">
                     <div>
                         <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                             Email<span className="text-red-500">*</span>
+                             {t('email_label')}<span className="text-red-500">*</span>
                         </label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder='Enter your email'
+                            placeholder={t('email_placeholder')}
                             className="dark:bg-gray-900 shadow-sm focus:border-brand-300 focus:ring-brand-500/10 dark:focus:border-brand-800 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 placeholder:text-gray-400 focus:ring-3 focus:outline-hidden dark:border-gray-700 dark:text-white/90 dark:placeholder:text-white/30"
                             required
                         />
@@ -71,12 +79,12 @@ export default function ForgotPasswordClient() {
                         disabled={isLoading}
                         className="bg-brand-500 shadow-md hover:bg-brand-600 w-full rounded-lg px-4 py-3 text-sm font-medium text-white transition disabled:opacity-50"
                     >
-                        {isLoading ? 'Sending Link...' : 'Send Reset Link'}
+                        {isLoading ? t('sending_link_button') : t('send_reset_link')}
                     </button>
                     
                     <div className="text-center">
                         <Link href="/signin" className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300">
-                            Back to Sign In
+                            {t('back_to_signin')}
                         </Link>
                     </div>
                 </div>
@@ -95,10 +103,10 @@ export default function ForgotPasswordClient() {
                  </Link>
                  <div className="space-y-4">
                      <h2 className="text-2xl font-bold text-white mb-2">
-                         Account Recovery
+                         {t('recovery_title')}
                      </h2>
                      <p className="text-gray-400 dark:text-gray-500 text-sm leading-relaxed">
-                         Don't worry, happens to the best of us. We'll get you back into your account in no time.
+                         {t('recovery_subtitle')}
                      </p>
                  </div>
              </div>

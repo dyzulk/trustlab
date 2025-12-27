@@ -94,8 +94,9 @@ const AppSidebar: React.FC = () => {
               {(isExpanded || isHovered || isMobileOpen) && (
                 <span className={`menu-item-text`}>
                   {(() => {
-                    const key = nav.name.toLowerCase();
-                    try { return t(key); } catch { return nav.name; }
+                    const key = nav.name.toLowerCase().replace(/\s+/g, '_');
+                    const translated = t(key);
+                    return translated === `Navigation.${key}` ? nav.name : translated;
                   })()}
                 </span>
               )}
@@ -128,7 +129,13 @@ const AppSidebar: React.FC = () => {
                   {getIcon(nav.icon)}
                 </span>
                 {(isExpanded || isHovered || isMobileOpen) && (
-                  <span className={`menu-item-text`}>{nav.name}</span>
+                  <span className={`menu-item-text`}>
+                    {(() => {
+                      const key = nav.name.toLowerCase().replace(/\s+/g, '_');
+                      const translated = t(key);
+                      return translated === `Navigation.${key}` ? nav.name : translated;
+                    })()}
+                  </span>
                 )}
               </Link>
             )
@@ -159,7 +166,8 @@ const AppSidebar: React.FC = () => {
                     >
                       {(() => {
                         const key = subItem.name.toLowerCase().replace(/\s+/g, '_');
-                        try { return t(key); } catch { return subItem.name; }
+                        const translated = t(key);
+                        return translated === `Navigation.${key}` ? subItem.name : translated;
                       })()}
                       <span className="flex items-center gap-1 ml-auto">
                         {subItem.new && (

@@ -9,6 +9,7 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { useTranslations } from "next-intl";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -16,6 +17,7 @@ export default function UserAddressCard() {
   const { data: user, isLoading: userLoading } = useSWR("/api/user", fetcher);
   const { isOpen, openModal, closeModal } = useModal();
   const { addToast } = useToast();
+  const t = useTranslations("Profile");
   const [isSaving, setIsSaving] = React.useState(false);
 
   // Form states
@@ -47,10 +49,10 @@ export default function UserAddressCard() {
     try {
       await axios.patch("/api/profile", formData);
       mutate("/api/user");
-      addToast("Address information updated successfully", "success");
+      addToast(t("toast_address_success"), "success");
       closeModal();
     } catch (err) {
-      addToast("Failed to update address information", "error");
+      addToast(t("toast_address_error"), "error");
     } finally {
       setIsSaving(false);
     }
@@ -64,13 +66,13 @@ export default function UserAddressCard() {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-              Address
+              {t("address_title")}
             </h4>
 
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Country
+                  {t("country_label")}
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                   {user?.country || "-"}
@@ -79,7 +81,7 @@ export default function UserAddressCard() {
 
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  City/State
+                  {t("city_state_label")}
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                   {user?.city_state || "-"}
@@ -88,7 +90,7 @@ export default function UserAddressCard() {
 
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  Postal Code
+                  {t("postal_code_label")}
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                   {user?.postal_code || "-"}
@@ -97,7 +99,7 @@ export default function UserAddressCard() {
 
               <div>
                 <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                  TAX ID
+                  {t("tax_id_label")}
                 </p>
                 <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                   {user?.tax_id || "-"}
@@ -125,7 +127,7 @@ export default function UserAddressCard() {
                 fill=""
               />
             </svg>
-            Edit
+            {t("edit_button")}
           </button>
         </div>
       </div>
@@ -133,62 +135,62 @@ export default function UserAddressCard() {
         <div className="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Address
+              {t("edit_address_title")}
             </h4>
             <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your location and tax information.
+              {t("edit_address_subtitle")}
             </p>
           </div>
           <form className="flex flex-col" onSubmit={handleSave}>
             <div className="px-2 overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                 <div>
-                  <Label>Country</Label>
+                  <Label>{t("country_label")}</Label>
                   <Input 
                     type="text" 
                     value={formData.country}
                     onChange={(e) => handleInputChange("country", e.target.value)}
-                    placeholder="e.g. United States"
+                    placeholder={t("country_placeholder")}
                   />
                 </div>
 
                 <div>
-                  <Label>City/State</Label>
+                  <Label>{t("city_state_label")}</Label>
                   <Input 
                     type="text" 
                     value={formData.city_state}
                     onChange={(e) => handleInputChange("city_state", e.target.value)}
-                    placeholder="e.g. Arizona, United States"
+                    placeholder={t("city_state_placeholder")}
                   />
                 </div>
 
                 <div>
-                  <Label>Postal Code</Label>
+                  <Label>{t("postal_code_label")}</Label>
                   <Input 
                     type="text" 
                     value={formData.postal_code}
                     onChange={(e) => handleInputChange("postal_code", e.target.value)}
-                    placeholder="e.g. 12345"
+                    placeholder={t("postal_code_placeholder")}
                   />
                 </div>
 
                 <div>
-                  <Label>TAX ID</Label>
+                  <Label>{t("tax_id_label")}</Label>
                   <Input 
                     type="text" 
                     value={formData.tax_id}
                     onChange={(e) => handleInputChange("tax_id", e.target.value)}
-                    placeholder="e.g. TAX-123"
+                    placeholder={t("tax_id_placeholder")}
                   />
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" type="button" onClick={closeModal} disabled={isSaving}>
-                Close
+                {t("close_button")}
               </Button>
               <Button size="sm" type="submit" loading={isSaving}>
-                Save Changes
+                {t("save_changes_button")}
               </Button>
             </div>
           </form>

@@ -8,6 +8,7 @@ import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
 import { useRouter } from "next/navigation";
 import { getUserAvatar } from "@/lib/utils";
+import { useTranslations } from "next-intl";
 
 interface Notification {
   id: string;
@@ -32,6 +33,7 @@ export default function NotificationDropdown() {
   const [notifying, setNotifying] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(false);
+  const t = useTranslations("Notifications");
 
   useEffect(() => {
     fetchNotifications();
@@ -102,9 +104,9 @@ export default function NotificationDropdown() {
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-    if (diffInSeconds < 60) return "Just now";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 60) return t("just_now");
+    if (diffInSeconds < 3600) return t("minutes_ago", { n: Math.floor(diffInSeconds / 60) });
+    if (diffInSeconds < 86400) return t("hours_ago", { n: Math.floor(diffInSeconds / 3600) });
     return date.toLocaleDateString();
   };
 
@@ -141,7 +143,7 @@ export default function NotificationDropdown() {
       >
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-700">
           <h5 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
-            Notifications
+            {t("title")}
           </h5>
           <button
             onClick={closeDropdown}
@@ -157,8 +159,8 @@ export default function NotificationDropdown() {
               <div className="flex items-center justify-center w-12 h-12 mb-3 bg-gray-100 rounded-full dark:bg-gray-800">
                 <Bell size={24} className="text-gray-400" />
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">No notifications yet</p>
-              <p className="text-xs text-gray-400 dark:text-gray-500">We'll notify you when something happens.</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{t("none")}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">{t("none_subtitle")}</p>
             </li>
           ) : (
             notifications.map((notification) => {
@@ -195,7 +197,7 @@ export default function NotificationDropdown() {
                     <div className="flex flex-col overflow-hidden">
                       <span className="block text-sm">
                         <span className={`text-gray-800 dark:text-white/90 leading-snug ${!notification.read_at ? 'font-semibold' : 'font-normal'}`}>
-                          {notification.data.title || (isTicket ? 'Support Event' : (notification.type.includes('Certificate') ? 'Certificate Event' : 'System Update'))}
+                          {notification.data.title || (isTicket ? t("support_event") : (notification.type.includes('Certificate') ? t("certificate_event") : t("system_update")))}
                         </span>
                       </span>
                       {notification.data.message && (
@@ -222,7 +224,7 @@ export default function NotificationDropdown() {
                   onClick={markAllAsRead}
                   className="flex-1 px-4 py-2 text-xs font-medium text-center text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
                 >
-                  Mark all as read
+                  {t("mark_all_read")}
                 </button>
             )}
             <Link
@@ -230,11 +232,10 @@ export default function NotificationDropdown() {
               className="flex-1 px-4 py-2 text-xs font-medium text-center text-white bg-brand-500 border border-transparent rounded-lg hover:bg-brand-600 transition-colors"
               onClick={closeDropdown}
             >
-              View All
+              {t("view_all")}
             </Link>
         </div>
       </Dropdown>
     </div>
   );
 }
-

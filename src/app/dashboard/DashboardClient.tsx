@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import useSWR from "swr";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import axios from "@/lib/axios";
 import { 
   BarChart3, 
@@ -44,6 +45,7 @@ const getActivityIcon = (action: string) => {
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function DashboardClient() {
+  const t = useTranslations("Dashboard");
   const { data, error, isLoading, mutate } = useSWR("/api/dashboard", fetcher, {
     refreshInterval: 0, // Disable auto polling, rely on WS or manual refresh
   });
@@ -160,7 +162,7 @@ export default function DashboardClient() {
 
   const chartSeries = [
     {
-      name: "Certificates Issued",
+      name: t("issued_certs"),
       data: chartData?.map((d: any) => d.count) || [],
     },
   ];
@@ -169,26 +171,26 @@ export default function DashboardClient() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Overview</h2>
-           <p className="text-sm text-gray-500 dark:text-gray-400">Real-time metrics & system health</p>
+           <h2 className="text-xl font-semibold text-gray-800 dark:text-white">{t("overview")}</h2>
+           <p className="text-sm text-gray-500 dark:text-gray-400">{t("metrics_health")}</p>
         </div>
         <div className="flex items-center gap-3">
              {/* System Health Indicators */}
-            <Tooltip content="Real-time WebSockets connection for live updates" position="top-end">
+            <Tooltip content={t("ws_tooltip")} position="top-end">
               <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border ${
                   wsStatus === 'connected' 
                   ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
                   : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'
               }`}>
                   {wsStatus === 'connected' ? <Wifi className="w-3.5 h-3.5" /> : <WifiOff className="w-3.5 h-3.5" />}
-                  <span>WS: {wsStatus === 'connected' ? 'Live' : 'Offline'}</span>
+                  <span>{t("ws_status")}: {wsStatus === 'connected' ? t("live") : t("offline")}</span>
               </div>
             </Tooltip>
 
-            <Tooltip content="Network latency/response time for API requests" position="top-end">
+            <Tooltip content={t("latency_tooltip")} position="top-end">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800">
                   <Activity className="w-3.5 h-3.5" />
-                  <span>API: {apiLatency !== null ? `${apiLatency}ms` : 'N/A'}</span>
+                  <span>{t("api_status")}: {apiLatency !== null ? `${apiLatency}ms` : 'N/A'}</span>
               </div>
             </Tooltip>
         </div>
@@ -198,24 +200,24 @@ export default function DashboardClient() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {/* Certificate Stats */}
         <StatsCard 
-            title="Total Certificates" 
+            title={t("total_certificates")} 
             value={stats?.total_certificates || 0} 
             icon={<FileText className="w-6 h-6 text-blue-500" />}
         />
         <StatsCard 
-            title="Active Certificates" 
+            title={t("active_certificates")} 
             value={stats?.active_certificates || 0} 
             icon={<CheckCircle className="w-6 h-6 text-green-500" />}
         />
         <StatsCard 
-            title="Expired" 
+            title={t("expired")} 
             value={stats?.expired_certificates || 0} 
             icon={<AlertCircle className="w-6 h-6 text-orange-500" />}
-            footer={stats?.expired_certificates?.value > 0 ? "Action Needed" : "All Good"}
+            footer={stats?.expired_certificates?.value > 0 ? t("action_needed") : t("all_good")}
             alert={stats?.expired_certificates?.value > 0} 
         />
         <StatsCard 
-            title="Active Tickets" 
+            title={t("active_tickets")} 
             value={stats?.active_tickets || 0} 
             icon={<Users className="w-6 h-6 text-purple-500" />}
         />
@@ -225,16 +227,16 @@ export default function DashboardClient() {
       {stats?.total_users !== undefined && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                <StatsCard 
-                title="Total Users" 
+                title={t("total_users")} 
                 value={stats.total_users} 
                 icon={<Users className="w-6 h-6 text-indigo-500" />}
                />
                <StatsCard 
-                title="Pending Inquiries" 
+                title={t("pending_inquiries")} 
                 value={stats.pending_inquiries} 
                 icon={<MessageSquare className="w-6 h-6 text-pink-500" />}
                 alert={stats.pending_inquiries?.value > 0}
-                footer={stats.pending_inquiries?.value > 0 ? "Response Required" : "No new messages"}
+                footer={stats.pending_inquiries?.value > 0 ? t("response_required") : t("no_new_messages")}
                />
           </div>
       )}
@@ -242,25 +244,25 @@ export default function DashboardClient() {
       {/* CA Download Stats (Admin Only) */}
       {stats?.ca_downloads_root !== undefined && (
           <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">CA Certificate Downloads</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{t("ca_downloads")}</h3>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   <StatsCard 
-                    title="Root CA" 
+                    title={t("root_ca")} 
                     value={stats.ca_downloads_root} 
                     icon={<Download className="w-6 h-6 text-brand-500" />}
-                    footer="Global Trust Root"
+                    footer={t("global_trust_root")}
                   />
                   <StatsCard 
-                    title="Intermediate 2048" 
+                    title={t("intermediate_2048")} 
                     value={stats.ca_downloads_intermediate_2048} 
                     icon={<Download className="w-6 h-6 text-blue-500" />}
-                    footer="Standard Issuance"
+                    footer={t("standard_issuance")}
                   />
                   <StatsCard 
-                    title="Intermediate 4096" 
+                    title={t("intermediate_4096")} 
                     value={stats.ca_downloads_intermediate_4096} 
                     icon={<Download className="w-6 h-6 text-indigo-500" />}
-                    footer="High Security"
+                    footer={t("high_security")}
                   />
               </div>
           </div>
@@ -270,8 +272,8 @@ export default function DashboardClient() {
        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:bg-gray-900 dark:border-gray-800 shadow-sm">
                 <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Recent Activity</h3>
-                    <button className="text-sm text-brand-500 hover:underline">View All</button>
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{t("recent_activity")}</h3>
+                    <button className="text-sm text-brand-500 hover:underline">{t("view_all")}</button>
                 </div>
                 {activity && activity.length > 0 ? (
                     <div className="space-y-4">
@@ -303,17 +305,17 @@ export default function DashboardClient() {
                 ) : (
                     <div className="flex flex-col items-center justify-center py-10 text-gray-400">
                         <Clock className="w-8 h-8 mb-2 opacity-50" />
-                        <p className="text-sm">No recent activity recorded.</p>
+                        <p className="text-sm">{t("no_activity")}</p>
                     </div>
                 )}
             </div>
             
             <div className="p-5 bg-white border border-gray-200 rounded-2xl dark:bg-gray-900 dark:border-gray-800 shadow-sm">
                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Certificate Trends</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white">{t("certificate_trends")}</h3>
                     <div className="flex items-center gap-1 text-xs text-green-500 font-medium">
                         <Activity className="w-3.5 h-3.5" />
-                        <span>Last 7 Days</span>
+                        <span>{t("last_7_days")}</span>
                     </div>
                 </div>
                 <div className="min-h-[250px] w-full">
@@ -332,6 +334,7 @@ export default function DashboardClient() {
 
 // Subcomponents
 function StatsCard({ title, value, icon, trend, trendLabel, footer, alert }: any) {
+    const t = useTranslations("Dashboard");
     const isPositive = typeof trend === 'number' ? trend >= 0 : false;
     const trendValue = typeof trend === 'number' ? `${isPositive ? '+' : ''}${trend}%` : trend;
     
@@ -371,7 +374,7 @@ function StatsCard({ title, value, icon, trend, trendLabel, footer, alert }: any
                                 {effectiveTrend}%
                             </span>
                             <span className="text-gray-400">
-                                {effectiveTrendLabel || "vs last month"}
+                                {effectiveTrendLabel || t("vs_last_month")}
                             </span>
                          </>
                      )}

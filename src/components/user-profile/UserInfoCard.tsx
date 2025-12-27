@@ -9,6 +9,7 @@ import { Modal } from "../ui/modal";
 import Button from "../ui/button/Button";
 import Input from "../form/input/InputField";
 import Label from "../form/Label";
+import { useTranslations } from "next-intl";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -16,6 +17,7 @@ export default function UserInfoCard() {
   const { data: user, isLoading: userLoading } = useSWR("/api/user", fetcher);
   const { isOpen, openModal, closeModal } = useModal();
   const { addToast } = useToast();
+  const t = useTranslations("Profile");
   const [isSaving, setIsSaving] = React.useState(false);
 
   // Form states
@@ -55,10 +57,10 @@ export default function UserInfoCard() {
     try {
       await axios.patch("/api/profile", formData);
       mutate("/api/user");
-      addToast("Personal information updated successfully", "success");
+      addToast(t("toast_personal_info_success"), "success");
       closeModal();
     } catch (err) {
-      addToast("Failed to update personal information", "error");
+      addToast(t("toast_personal_info_error"), "error");
     } finally {
       setIsSaving(false);
     }
@@ -71,13 +73,13 @@ export default function UserInfoCard() {
       <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h4 className="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-            Personal Information
+            {t("personal_info_title")}
           </h4>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                First Name
+                {t("first_name_label")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.first_name || "-"}
@@ -86,7 +88,7 @@ export default function UserInfoCard() {
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Last Name
+                {t("last_name_label")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.last_name || "-"}
@@ -95,7 +97,7 @@ export default function UserInfoCard() {
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Email address
+                {t("email_label")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.email}
@@ -104,7 +106,7 @@ export default function UserInfoCard() {
 
             <div>
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Phone
+                {t("phone_label")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.phone || "-"}
@@ -113,7 +115,7 @@ export default function UserInfoCard() {
 
             <div className="lg:col-span-2">
               <p className="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-                Bio
+                {t("bio_label")}
               </p>
               <p className="text-sm font-medium text-gray-800 dark:text-white/90">
                 {user?.bio || "-"}
@@ -141,7 +143,7 @@ export default function UserInfoCard() {
               fill=""
             />
           </svg>
-          Edit
+          {t("edit_button")}
         </button>
       </div>
 
@@ -149,42 +151,42 @@ export default function UserInfoCard() {
         <div className="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
           <div className="px-2 pr-14">
             <h4 className="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-              Edit Personal Information
+              {t("edit_personal_info_title")}
             </h4>
             <p className="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-              Update your details and social links.
+              {t("edit_personal_info_subtitle")}
             </p>
           </div>
           <form className="flex flex-col" onSubmit={handleSave}>
             <div className="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
               <div>
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Social Links
+                  {t("social_links_title")}
                 </h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div>
-                    <Label>Facebook Username</Label>
+                    <Label>{t("facebook_username_label")}</Label>
                     <Input
                       type="text"
                       value={formData.facebook}
                       onChange={(e) => handleInputChange("facebook", e.target.value)}
-                      placeholder="@username"
+                      placeholder={t("username_placeholder")}
                     />
                   </div>
 
                   <div>
-                    <Label>X.com (Twitter) Username</Label>
+                    <Label>{t("twitter_username_label")}</Label>
                     <Input 
                       type="text" 
                       value={formData.twitter}
                       onChange={(e) => handleInputChange("twitter", e.target.value)}
-                      placeholder="@username"
+                      placeholder={t("username_placeholder")}
                     />
                   </div>
 
                   <div>
-                    <Label>Linkedin Username</Label>
+                    <Label>{t("linkedin_username_label")}</Label>
                     <Input
                       type="text"
                       value={formData.linkedin}
@@ -194,24 +196,24 @@ export default function UserInfoCard() {
                   </div>
 
                   <div>
-                    <Label>Instagram Username</Label>
+                    <Label>{t("instagram_username_label")}</Label>
                     <Input
                       type="text"
                       value={formData.instagram}
                       onChange={(e) => handleInputChange("instagram", e.target.value)}
-                      placeholder="@username"
+                      placeholder={t("username_placeholder")}
                     />
                   </div>
                 </div>
               </div>
               <div className="mt-7">
                 <h5 className="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-                  Personal Information
+                  {t("personal_info_title")}
                 </h5>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>First Name</Label>
+                    <Label>{t("first_name_label")}</Label>
                     <Input 
                       type="text" 
                       value={formData.first_name}
@@ -220,7 +222,7 @@ export default function UserInfoCard() {
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Last Name</Label>
+                    <Label>{t("last_name_label")}</Label>
                     <Input 
                       type="text" 
                       value={formData.last_name}
@@ -229,12 +231,12 @@ export default function UserInfoCard() {
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Email Address (Readonly)</Label>
+                    <Label>{t("email_readonly_label")}</Label>
                     <Input type="text" value={user?.email} disabled />
                   </div>
 
                   <div className="col-span-2 lg:col-span-1">
-                    <Label>Phone</Label>
+                    <Label>{t("phone_label")}</Label>
                     <Input 
                       type="text" 
                       value={formData.phone}
@@ -243,7 +245,7 @@ export default function UserInfoCard() {
                   </div>
 
                   <div className="col-span-2">
-                    <Label>Bio</Label>
+                    <Label>{t("bio_label")}</Label>
                     <Input 
                       type="text" 
                       value={formData.bio}
@@ -255,10 +257,10 @@ export default function UserInfoCard() {
             </div>
             <div className="flex items-center gap-3 px-2 mt-6 lg:justify-end">
               <Button size="sm" variant="outline" type="button" onClick={closeModal} disabled={isSaving}>
-                Close
+                {t("close_button")}
               </Button>
               <Button size="sm" type="submit" loading={isSaving}>
-                Save Changes
+                {t("save_changes_button")}
               </Button>
             </div>
           </form>
